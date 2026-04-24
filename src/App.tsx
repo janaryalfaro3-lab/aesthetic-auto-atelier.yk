@@ -97,7 +97,50 @@ function App() {
     location: string;
     date: string;
     time: string;
+    price?: string;
   } | null>(null);
+
+  const getPrice = (serviceName: string, vehicleType: string) => {
+    if (!serviceName || !vehicleType) return null;
+
+    const allServices = [
+      ...detailingServices,
+      ...ceramicServices,
+      ...mainServices,
+      ...specialtyServices,
+      ...additionalServices
+    ];
+
+    const service = allServices.find(s => s.category === serviceName) as any;
+    if (!service || !service.prices) return null;
+
+    const prices = service.prices as { type: string; price: string; }[];
+
+    // Normalize vehicle type for lookup
+    let typeToLookFor = vehicleType;
+    if (vehicleType.includes('Sedan')) typeToLookFor = 'Sedan';
+    else if (vehicleType.includes('SUV')) {
+      // Check if service uses 'SUV/Crossover' or just 'SUV'
+      if (prices.some(p => p.type === 'SUV/Crossover')) typeToLookFor = 'SUV/Crossover';
+      else typeToLookFor = 'SUV';
+    } 
+    else if (vehicleType.includes('Pickup')) typeToLookFor = 'Van/Pick-up';
+    
+    // Fallback for specialty/additional
+    if (prices.length === 1 && prices[0].type === 'Any Type') {
+      return prices[0].price;
+    }
+    
+    const priceObj = prices.find(p => p.type === typeToLookFor) || prices[0];
+    return priceObj.price;
+  };
+
+  const [formValues, setFormValues] = useState({
+    service: '',
+    vehicleType: ''
+  });
+
+  const currentPrice = getPrice(formValues.service, formValues.vehicleType);
 
   const [serviceVideos, setServiceVideos] = useState<Record<string, ServiceVideo>>({});
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
@@ -190,6 +233,7 @@ function App() {
       location: formData.get('location') as string,
       date: formData.get('date') as string,
       time: formData.get('time') as string,
+      price: getPrice(formData.get('service') as string, formData.get('vehicleType') as string) || undefined
     });
     setBookingState('confirm');
     document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
@@ -249,9 +293,9 @@ function App() {
       icon: ShieldCheck,
       description: "The ultimate reset for your vehicle. Complete interior deep clean and exterior restoration.",
       prices: [
-        { type: "Sedan", price: "₱4,960" },
-        { type: "SUV/Crossover", price: "₱5,960" },
-        { type: "Van/Pick-up", price: "₱7,960" }
+        { type: "Sedan", price: "₱5,960" },
+        { type: "SUV/Crossover", price: "₱6,960" },
+        { type: "Van/Pick-up", price: "₱8,960" }
       ]
     },
     {
@@ -1537,6 +1581,12 @@ function App() {
                     <span className="text-slate-500 uppercase tracking-widest text-xs font-bold mb-1 md:mb-0">Location</span>
                     <span className="text-white font-medium">{bookingData?.location}</span>
                   </div>
+                  {bookingData?.price && (
+                    <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/10 pb-4">
+                      <span className="text-slate-500 uppercase tracking-widest text-xs font-bold mb-1 md:mb-0">Investment</span>
+                      <span className="text-white font-black text-lg">{bookingData.price}</span>
+                    </div>
+                  )}
                   <div className="flex flex-col md:flex-row md:items-center justify-between pb-2">
                     <span className="text-slate-500 uppercase tracking-widest text-xs font-bold mb-1 md:mb-0">Schedule</span>
                     <span className="text-white font-medium">{bookingData?.date} • {bookingData?.time === 'morning' ? 'Morning (8AM-12PM)' : 'Afternoon (1PM-5PM)'}</span>
@@ -1583,7 +1633,12 @@ function App() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Service required</label>
-                  <select required name="service" className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors appearance-none cursor-pointer">
+                  <select 
+                    required 
+                    name="service" 
+                    onChange={(e) => setFormValues(prev => ({ ...prev, service: e.target.value }))}
+                    className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors appearance-none cursor-pointer"
+                  >
                     <option value="" className="text-slate-500">Select a service...</option>
                     <optgroup label="Ceramic Coating" className="bg-slate-900 text-white">
                       {ceramicServices.map((s, i) => (
@@ -1617,7 +1672,12 @@ function App() {
               <div className="grid md:grid-cols-2 gap-8 relative z-10">
                 <div className="space-y-2">
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Vehicle Type</label>
-                  <select required name="vehicleType" className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors appearance-none cursor-pointer">
+                  <select 
+                    required 
+                    name="vehicleType" 
+                    onChange={(e) => setFormValues(prev => ({ ...prev, vehicleType: e.target.value }))}
+                    className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors appearance-none cursor-pointer"
+                  >
                     <option value="" className="text-slate-500">Select type...</option>
                     <option value="Sedan/Hatchback" className="bg-slate-900 text-white">Sedan / Hatchback</option>
                     <option value="SUV/Crossover" className="bg-slate-900 text-white">SUV / Crossover</option>
@@ -1647,6 +1707,18 @@ function App() {
                   </select>
                 </div>
               </div>
+
+              {currentPrice && (
+                <div className="relative z-10 bg-red-600/10 border border-red-500/30 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div>
+                    <p className="text-[10px] font-display uppercase tracking-[0.2em] text-red-400 font-bold mb-1">Estimated Investment</p>
+                    <p className="text-3xl font-display font-black text-white">{currentPrice}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-display uppercase tracking-widest text-slate-500 leading-relaxed font-medium">Final price will be confirmed<br/>upon vehicle inspection at site</p>
+                  </div>
+                </div>
+              )}
 
               <button 
                 type="submit"

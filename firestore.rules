@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /bookings/{id} {
+      allow create: if request.resource.data.fullName is string
+                    && request.resource.data.email is string
+                    && request.resource.data.phone is string
+                    && request.resource.data.location is string
+                    && request.resource.data['service'] is string
+                    && request.resource.data['vehicleType'] is string
+                    && request.resource.data['date'] is string
+                    && (request.resource.data['time'] == 'morning' || request.resource.data['time'] == 'afternoon')
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if request.auth != null && request.auth.token.email == 'jaesthetic.info@gmail.com' && request.auth.token.email_verified == true;
+    }
+  }
+}

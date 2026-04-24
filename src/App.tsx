@@ -2,6 +2,27 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Phone, Car, Sparkles, ChevronRight, Plus, Minus, Star, Calendar, CheckCircle2, Droplets, Wind, ShieldCheck, Mail, Check, Award, Gem, ThumbsUp, Facebook, Instagram, Play, Wrench, Settings, Sun, Shield, Loader2, PlayCircle, X, History, Target, Users, Gift, Megaphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI } from "@google/genai";
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import firebaseConfig from '../firebase-applet-config.json';
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: 'create' | 'update' | 'delete' | 'list' | 'get' | 'write';
+  path: string | null;
+}
+
+const handleFirestoreError = (error: any, operationType: FirestoreErrorInfo['operationType'], path: string | null) => {
+  console.error(`Firestore ${operationType} at ${path} failed:`, error);
+  throw JSON.stringify({
+    error: error.message || 'Unknown error',
+    operationType,
+    path
+  });
+};
 
 const TikTokIcon = ({ className }: { className?: string }) => (
   <svg 
@@ -38,6 +59,155 @@ const SERVICE_PROMPTS: Record<string, string> = {
   "Accessories & Relays": "High-tech car electronics installation video, dashcam mounting, android stereo screen glowing with maps, wire management, clean professional install, modern automotive tech vibes, 4k.",
   "Care & Premium Film": "Precision window tint application on a luxury car, nano-ceramic film being heat-shrunk, squeegee removing water, perfect clear finish, UV protection demonstration, sleek look, 4k."
 };
+
+const detailingServices = [
+  {
+    category: "Full Detailing",
+    icon: ShieldCheck,
+    description: "The ultimate reset for your vehicle. Complete interior deep clean and exterior restoration.",
+    prices: [
+      { type: "Sedan", price: "₱5,960" },
+      { type: "SUV/Crossover", price: "₱6,960" },
+      { type: "Van/Pick-up", price: "₱8,960" }
+    ]
+  },
+  {
+    category: "Interior Detailing",
+    icon: Wind,
+    description: "A complete overhaul of your cabin, removing odors, stains, and bacteria.",
+    prices: [
+      { type: "Sedan", price: "₱2,980" },
+      { type: "SUV/Crossover", price: "₱3,480" },
+      { type: "Van/Pick-up", price: "₱4,480" }
+    ]
+  },
+  {
+    category: "Exterior Detailing",
+    icon: Droplets,
+    description: "A comprehensive exterior refresh designed to decontaminate and protect your vehicle's paint.",
+    prices: [
+      { type: "Motorcycle", price: "₱1,380" },
+      { type: "Sedan", price: "₱2,980" },
+      { type: "SUV/Crossover", price: "₱3,480" },
+      { type: "Van/Pick-up", price: "₱4,480" }
+    ]
+  }
+];
+
+const ceramicServices = [
+  {
+    category: "Ceramic Coating",
+    icon: Shield,
+    description: "Our advanced ceramic coating provides a durable, high-gloss shield, protecting your vehicle's paintwork from environmental contaminants and UV rays for years to come.",
+    prices: [
+      { type: "Sedan", price: "₱12,000" },
+      { type: "SUV/Crossover", price: "₱16,000" },
+      { type: "Van/Pick-up", price: "₱20,000" }
+    ]
+  }
+];
+
+const mainServices = [
+  {
+    category: "Carwash Package 1",
+    icon: Droplets,
+    description: "Essential care for a clean and polished finish.",
+    inclusions: ["Body Wash", "Hand Wax", "Tire Black", "Armor All"],
+    prices: [
+      { type: "Sedan", price: "₱340" },
+      { type: "SUV", price: "₱380" },
+      { type: "Van/Pick-up", price: "₱480" }
+    ]
+  },
+  {
+    category: "Carwash Package 2",
+    icon: Sparkles,
+    description: "Premium detailing for an elevated shine.",
+    inclusions: ["Premium Body Wash", "Premium Tire Black", "Premium Leather Conditioning", "Wax Buffing", "Vacuum"],
+    prices: [
+      { type: "Sedan", price: "₱480" },
+      { type: "SUV", price: "₱640" },
+      { type: "Van/Pick-up", price: "₱780" }
+    ]
+  },
+  {
+    category: "Carwash Package 3",
+    icon: ShieldCheck,
+    description: "Maximum protection and restoration.",
+    inclusions: ["Watermarks / Swirlmarks (Acid Rain)", "Deluxe Body Wash", "Deluxe Leather Conditioning", "Deluxe Tire Black"],
+    prices: [
+      { type: "Sedan", price: "₱780" },
+      { type: "SUV", price: "₱880" },
+      { type: "Van/Pick-up", price: "₱980" }
+    ]
+  }
+];
+
+const specialtyServices = [
+  {
+    category: "Motorcycle with Hydrophobic Wax",
+    icon: Car,
+    description: "Specialized care for two-wheelers.",
+    inclusions: ["Big bike", "Motor", "Bike"],
+    prices: [
+      { type: "Any Type", price: "₱280" }
+    ]
+  },
+  {
+    category: "Advanced Cleaning (No-Pull Down)",
+    icon: Wind,
+    description: "No dashboard removal required. Recommended every 12 months.",
+    inclusions: ["Foaming Evaporator Clean", "Blower Wheel Scrub", "Condenser Flush"],
+    prices: [
+      { type: "All Vehicles", price: "Contact Us" }
+    ]
+  }
+];
+
+const additionalServices = [
+  {
+    category: "Signature Oil Change",
+    icon: Droplets,
+    description: "Advanced Fully Synthetic Oil for maximum fuel efficiency and superior heat resistance.",
+    inclusions: [
+      "Advanced Fully Synthetic Oil",
+      "High-Efficiency Oil Filter",
+      "Magnetic Drain Plug Cleaning",
+      "10,000 km Service Life"
+    ]
+  },
+  {
+    category: "Accessories & Relays",
+    icon: Settings,
+    description: "Expert automotive electrical installations to enhance convenience and safety.",
+    inclusions: [
+      "Dashcam (High-Res)",
+      "Android Car Stereo (Nav)",
+      "Alarm / Central Lock",
+      "Auto Horn Upgrades"
+    ]
+  },
+  {
+    category: "Care & Premium Film",
+    icon: Sun,
+    description: "Protect your cabin with Nano-Ceramic Tech offering Up to 99% UV rejection.",
+    inclusions: [
+      "Clear Ceramic Films",
+      "BK-Series Nano Ceramic",
+      "KTM-Series Magic Films",
+      "Door Mechanism & Wiper Fix"
+    ]
+  }
+];
+
+const allServices = [
+  ...detailingServices,
+  ...ceramicServices,
+  ...mainServices,
+  ...specialtyServices,
+  ...additionalServices
+];
+
 
 const VideoModal = ({ url, onClose }: { url: string, onClose: () => void }) => {
   return (
@@ -103,14 +273,6 @@ function App() {
   const getPrice = (serviceName: string, vehicleType: string) => {
     if (!serviceName || !vehicleType) return null;
 
-    const allServices = [
-      ...detailingServices,
-      ...ceramicServices,
-      ...mainServices,
-      ...specialtyServices,
-      ...additionalServices
-    ];
-
     const service = allServices.find(s => s.category === serviceName) as any;
     if (!service || !service.prices) return null;
 
@@ -118,13 +280,18 @@ function App() {
 
     // Normalize vehicle type for lookup
     let typeToLookFor = vehicleType;
-    if (vehicleType.includes('Sedan')) typeToLookFor = 'Sedan';
-    else if (vehicleType.includes('SUV')) {
+    if (vehicleType.includes('Sedan')) {
+      typeToLookFor = 'Sedan';
+    } else if (vehicleType.includes('Pickup')) {
+      typeToLookFor = 'Van/Pick-up';
+    } else if (vehicleType.includes('SUV')) {
       // Check if service uses 'SUV/Crossover' or just 'SUV'
-      if (prices.some(p => p.type === 'SUV/Crossover')) typeToLookFor = 'SUV/Crossover';
-      else typeToLookFor = 'SUV';
+      if (prices.some(p => p.type === 'SUV/Crossover')) {
+        typeToLookFor = 'SUV/Crossover';
+      } else {
+        typeToLookFor = 'SUV';
+      }
     } 
-    else if (vehicleType.includes('Pickup')) typeToLookFor = 'Van/Pick-up';
     
     // Fallback for specialty/additional
     if (prices.length === 1 && prices[0].type === 'Any Type') {
@@ -132,7 +299,7 @@ function App() {
     }
     
     const priceObj = prices.find(p => p.type === typeToLookFor) || prices[0];
-    return priceObj.price;
+    return priceObj?.price || null;
   };
 
   const [formValues, setFormValues] = useState({
@@ -246,21 +413,20 @@ function App() {
     setBookingState('submitting');
     
     try {
-      const response = await fetch('/api/appointments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bookingData),
+      await addDoc(collection(db, 'bookings'), {
+        ...bookingData,
+        status: 'pending',
+        createdAt: serverTimestamp()
       });
-
-      if (response.ok) {
-        setBookingState('success');
-      } else {
-        throw new Error('Failed to save appointment');
-      }
-    } catch (error) {
-      console.error(error);
-      // Fallback to success even if DB fails for UX, but log it
       setBookingState('success');
+    } catch (error) {
+      try {
+        handleFirestoreError(error, 'create', 'bookings');
+      } catch (handlerError) {
+        console.error(handlerError);
+        setBookingState('confirm');
+        alert("Booking failed. Please try again or contact us directly.");
+      }
     }
     
     document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
@@ -287,145 +453,7 @@ function App() {
     { quote: "Ako na magsasabi, wag na kayo magdalawang isip. Legit yung gawa nila. Premium materials gamit at pulido gumawa.", name: "Katrina M.", rating: 5 }
   ];
 
-  const detailingServices = [
-    {
-      category: "Full Detailing",
-      icon: ShieldCheck,
-      description: "The ultimate reset for your vehicle. Complete interior deep clean and exterior restoration.",
-      prices: [
-        { type: "Sedan", price: "₱5,960" },
-        { type: "SUV/Crossover", price: "₱6,960" },
-        { type: "Van/Pick-up", price: "₱8,960" }
-      ]
-    },
-    {
-      category: "Interior Detailing",
-      icon: Wind,
-      description: "A complete overhaul of your cabin, removing odors, stains, and bacteria.",
-      prices: [
-        { type: "Sedan", price: "₱2,980" },
-        { type: "SUV/Crossover", price: "₱3,480" },
-        { type: "Van/Pick-up", price: "₱4,480" }
-      ]
-    },
-    {
-      category: "Exterior Detailing",
-      icon: Droplets,
-      description: "A comprehensive exterior refresh designed to decontaminate and protect your vehicle's paint.",
-      prices: [
-        { type: "Motorcycle", price: "₱1,380" },
-        { type: "Sedan", price: "₱2,980" },
-        { type: "SUV/Crossover", price: "₱3,480" },
-        { type: "Van/Pick-up", price: "₱4,480" }
-      ]
-    }
-  ];
 
-  const ceramicServices = [
-    {
-      category: "Ceramic Coating",
-      icon: Shield,
-      description: "Our advanced ceramic coating provides a durable, high-gloss shield, protecting your vehicle's paintwork from environmental contaminants and UV rays for years to come.",
-      prices: [
-        { type: "Sedan", price: "₱12,000" },
-        { type: "SUV/Crossover", price: "₱16,000" },
-        { type: "Van/Pick-up", price: "₱20,000" }
-      ]
-    }
-  ];
-
-  const mainServices = [
-    {
-      category: "Carwash Package 1",
-      icon: Droplets,
-      description: "Essential care for a clean and polished finish.",
-      inclusions: ["Body Wash", "Hand Wax", "Tire Black", "Armor All"],
-      prices: [
-        { type: "Sedan", price: "₱340" },
-        { type: "SUV", price: "₱380" },
-        { type: "Van/Pick-up", price: "₱480" }
-      ]
-    },
-    {
-      category: "Carwash Package 2",
-      icon: Sparkles,
-      description: "Premium detailing for an elevated shine.",
-      inclusions: ["Premium Body Wash", "Premium Tire Black", "Premium Leather Conditioning", "Wax Buffing", "Vacuum"],
-      prices: [
-        { type: "Sedan", price: "₱480" },
-        { type: "SUV", price: "₱640" },
-        { type: "Van/Pick-up", price: "₱780" }
-      ]
-    },
-    {
-      category: "Carwash Package 3",
-      icon: ShieldCheck,
-      description: "Maximum protection and restoration.",
-      inclusions: ["Watermarks / Swirlmarks (Acid Rain)", "Deluxe Body Wash", "Deluxe Leather Conditioning", "Deluxe Tire Black"],
-      prices: [
-        { type: "Sedan", price: "₱780" },
-        { type: "SUV", price: "₱880" },
-        { type: "Van/Pick-up", price: "₱980" }
-      ]
-    }
-  ];
-
-  const specialtyServices = [
-    {
-      category: "Motorcycle with Hydrophobic Wax",
-      icon: Car,
-      description: "Specialized care for two-wheelers.",
-      inclusions: ["Big bike", "Motor", "Bike"],
-      prices: [
-        { type: "Any Type", price: "₱280" }
-      ]
-    },
-    {
-      category: "Advanced Cleaning (No-Pull Down)",
-      icon: Wind,
-      description: "No dashboard removal required. Recommended every 12 months.",
-      inclusions: ["Foaming Evaporator Clean", "Blower Wheel Scrub", "Condenser Flush"],
-      prices: [
-        { type: "All Vehicles", price: "Contact Us" }
-      ]
-    }
-  ];
-
-  const additionalServices = [
-    {
-      category: "Signature Oil Change",
-      icon: Droplets,
-      description: "Advanced Fully Synthetic Oil for maximum fuel efficiency and superior heat resistance.",
-      inclusions: [
-        "Advanced Fully Synthetic Oil",
-        "High-Efficiency Oil Filter",
-        "Magnetic Drain Plug Cleaning",
-        "10,000 km Service Life"
-      ]
-    },
-    {
-      category: "Accessories & Relays",
-      icon: Settings,
-      description: "Expert automotive electrical installations to enhance convenience and safety.",
-      inclusions: [
-        "Dashcam (High-Res)",
-        "Android Car Stereo (Nav)",
-        "Alarm / Central Lock",
-        "Auto Horn Upgrades"
-      ]
-    },
-    {
-      category: "Care & Premium Film",
-      icon: Sun,
-      description: "Protect your cabin with Nano-Ceramic Tech offering Up to 99% UV rejection.",
-      inclusions: [
-        "Clear Ceramic Films",
-        "BK-Series Nano Ceramic",
-        "KTM-Series Magic Films",
-        "Door Mechanism & Wiper Fix"
-      ]
-    }
-  ];
 
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'bot'; text: string }[]>([

@@ -1,0 +1,29 @@
+{
+  "entities": {
+    "Booking": {
+      "title": "Booking",
+      "description": "Information about a service booking request",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string", "description": "Full name of the customer" },
+        "email": { "type": "string", "format": "email", "description": "Email address of the customer" },
+        "phone": { "type": "string", "description": "Phone number of the customer" },
+        "service": { "type": "string", "description": "Selected service" },
+        "vehicleType": { "type": "string", "description": "Type of vehicle" },
+        "location": { "type": "string", "description": "Customer location" },
+        "date": { "type": "string", "description": "Selected date for service" },
+        "time": { "type": "string", "enum": ["morning", "afternoon"], "description": "Time slot preference" },
+        "price": { "type": "string", "description": "Estimated price at time of booking" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"], "description": "Current status of the booking" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the booking was created" }
+      },
+      "required": ["fullName", "email", "phone", "service", "vehicleType", "location", "date", "time"]
+    }
+  },
+  "firestore": {
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Collection of all booking requests"
+    }
+  }
+}

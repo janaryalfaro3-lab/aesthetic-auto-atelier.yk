@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Oswald:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Oswald", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  @apply text-slate-800 font-sans antialiased bg-white;
+}
+
+.text-shadow-sm {
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+@keyframes kenBurns {
+  0% { transform: scale(1.05) translate(0, 0); }
+  50% { transform: scale(1.15) translate(-1%, 2%); }
+  100% { transform: scale(1.05) translate(0, 0); }
+}
+
+@keyframes sweepLine {
+  0% { transform: translateX(-100vw) skewX(-30deg); }
+  100% { transform: translateX(200vw) skewX(-30deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes floatParticle {
+  0% { transform: translateY(5vh) scale(0.5); opacity: 0; }
+  20% { opacity: 0.7; }
+  80% { opacity: 0.7; }
+  100% { transform: translateY(-30vh) scale(1.5); opacity: 0; }
+}
+
+.animate-ken-burns { animation: kenBurns 25s ease-in-out infinite; }
+.animate-sweep-line { animation: sweepLine 6s cubic-bezier(0.2, 0.8, 0.2, 1) infinite; }
+.animate-pulse-glow { animation: pulseGlow 4s ease-in-out infinite; }
+.particle { animation: floatParticle linear infinite; }

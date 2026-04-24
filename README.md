@@ -1,11 +1,31 @@
-<div align="center">
+# Aesthetic Auto Atelier - Official Website
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+This is the source code for the Aesthetic Auto Atelier website, featuring a premium UI, AI Chatbot, and Database integration for appointments.
 
-  <h1>Built with AI Studio</h2>
+## Deployment Instructions
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+### 1. Most Recommended: AI Studio Deployment
+The easiest way to host this app is using the built-in **Deploy** or **Share** button in the top right of the Google AI Studio interface. This handles the database and server automatically.
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+### 2. Deploying to Vercel via GitHub
+If you prefer using Vercel, follow these steps to avoid build errors:
 
-</div>
+**A. Correct GitHub Sync (CRITICAL)**
+*   **DO NOT** upload a `.zip` file to GitHub manually.
+*   In AI Studio, click the **"GitHub"** button in the top right corner.
+*   Sign in and choose **"Push"** or **"Sync"**.
+*   This will upload the actual source code files (the `src` folder, `index.html`, etc.) so Vercel can see them.
+
+**B. Vercel Configuration**
+*   Go to your Vercel Dashboard and import the repository.
+*   In **Environment Variables**, add the following:
+    *   `DATABASE_URL`: Your Neon connection string.
+    *   `GEMINI_API_KEY`: Your Google Gemini API Key.
+*   Click **Deploy**.
+
+## Tech Stack
+*   React 19 + Vite
+*   Tailwind CSS 4
+*   Neon (PostgreSQL)
+*   Google Gemini AI
+*   Express (Server)

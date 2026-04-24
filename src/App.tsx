@@ -3,7 +3,7 @@ import { MapPin, Phone, Car, Sparkles, ChevronRight, Plus, Minus, Star, Calendar
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI } from "@google/genai";
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
@@ -475,11 +475,19 @@ function App() {
     const checkDb = async () => {
       setDbStatus('checking');
       try {
-        const res = await fetch('/api/db-test');
-        if (res.ok) setDbStatus('connected');
-        else setDbStatus('error');
-      } catch (e) {
-        setDbStatus('error');
+        // Test connection as per guidelines
+        await getDocFromServer(doc(db, 'test', 'connection'));
+        setDbStatus('connected');
+      } catch (error) {
+        // We expect a 404 or permission denied if the doc doesn't exist, 
+        // but if it's a network error or config error, it might be different.
+        // If it didn't throw a "offline" error, we consider it "connected" to the service.
+        if (error instanceof Error && error.message.includes('offline')) {
+          setDbStatus('disconnected');
+        } else {
+          // Even a permission denied means we reached the server
+          setDbStatus('connected');
+        }
       }
     };
     checkDb();
@@ -1871,7 +1879,7 @@ function App() {
                 'bg-red-500'
               }`}></div>
               <span className="text-[9px] text-white/40 uppercase tracking-widest font-bold">
-                Neon Database: {dbStatus === 'connected' ? 'Connected' : dbStatus === 'checking' ? 'Checking...' : 'Not Linked (Add DATABASE_URL to Environment Variables)'}
+                Firebase Firestore: {dbStatus === 'connected' ? 'Connected' : 'Offline'}
               </span>
             </div>
           </div>

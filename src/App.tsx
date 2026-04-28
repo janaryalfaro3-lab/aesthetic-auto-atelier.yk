@@ -919,9 +919,14 @@ function App() {
 
                     <div className="mb-6 border-b border-white/10 pb-6 relative flex items-center gap-4 z-10">
                       <motion.div 
-                        animate={{ y: [0, -3, 0] }} 
-                        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: idx * 0.3 }}
-                        className="bg-slate-800/80 backdrop-blur-sm text-blue-400 p-3 rounded-xl border border-white/5 group-hover:bg-blue-600 group-hover:text-white transition-colors"
+                        animate={{ y: [0, -4, 0] }} 
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        transition={{ 
+                          y: { repeat: Infinity, duration: 4, ease: "easeInOut", delay: idx * 0.3 },
+                          scale: { duration: 0.2 },
+                          rotate: { duration: 0.2 }
+                        }}
+                        className="bg-slate-800/80 backdrop-blur-sm text-blue-400 p-3 rounded-xl border border-white/5 group-hover:bg-blue-600 group-hover:text-white transition-colors cursor-pointer"
                       >
                         <Icon className="w-6 h-6" />
                       </motion.div>
@@ -979,9 +984,14 @@ function App() {
 
                     <div className="mb-6 border-b border-white/10 pb-6 relative flex items-center gap-4 z-10">
                       <motion.div 
-                        animate={{ y: [0, -3, 0] }} 
-                        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: idx * 0.3 }}
-                        className="bg-slate-800/80 backdrop-blur-sm text-red-500 p-3 rounded-xl border border-white/5 group-hover:bg-red-600 group-hover:text-white transition-colors"
+                        animate={{ y: [0, -4, 0] }} 
+                        whileHover={{ scale: 1.1, rotate: -5 }}
+                        transition={{ 
+                          y: { repeat: Infinity, duration: 4, ease: "easeInOut", delay: idx * 0.3 },
+                          scale: { duration: 0.2 },
+                          rotate: { duration: 0.2 }
+                        }}
+                        className="bg-slate-800/80 backdrop-blur-sm text-red-500 p-3 rounded-xl border border-white/5 group-hover:bg-red-600 group-hover:text-white transition-colors cursor-pointer"
                       >
                         <Icon className="w-6 h-6" />
                       </motion.div>
@@ -1039,9 +1049,14 @@ function App() {
 
                   <div className="mb-6 border-b border-white/10 pb-6 relative flex items-center gap-3 z-10">
                     <motion.div 
-                      animate={{ y: [0, -3, 0] }} 
-                      transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: idx * 0.3 }}
-                      className="bg-slate-800/80 backdrop-blur-sm text-blue-500 p-3 rounded-xl border border-white/5 group-hover:bg-blue-600 group-hover:text-white transition-colors"
+                      animate={{ y: [0, -4, 0] }} 
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ 
+                        y: { repeat: Infinity, duration: 4, ease: "easeInOut", delay: idx * 0.3 },
+                        scale: { duration: 0.2 },
+                        rotate: { duration: 0.2 }
+                      }}
+                      className="bg-slate-800/80 backdrop-blur-sm text-blue-500 p-3 rounded-xl border border-white/5 group-hover:bg-blue-600 group-hover:text-white transition-colors cursor-pointer"
                     >
                       <Icon className="w-6 h-6" />
                     </motion.div>
@@ -1114,9 +1129,14 @@ function App() {
 
                     <div className="mb-6 border-b border-white/10 pb-6 relative flex items-center gap-4 z-10">
                       <motion.div 
-                        animate={{ y: [0, -3, 0] }} 
-                        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: idx * 0.3 }}
-                        className="bg-slate-800/80 backdrop-blur-sm text-slate-400 p-3 rounded-xl border border-white/5 group-hover:bg-slate-700 group-hover:text-white transition-colors"
+                        animate={{ y: [0, -4, 0] }} 
+                        whileHover={{ scale: 1.1, rotate: -5 }}
+                        transition={{ 
+                          y: { repeat: Infinity, duration: 4, ease: "easeInOut", delay: idx * 0.3 },
+                          scale: { duration: 0.2 },
+                          rotate: { duration: 0.2 }
+                        }}
+                        className="bg-slate-800/80 backdrop-blur-sm text-slate-400 p-3 rounded-xl border border-white/5 group-hover:bg-slate-700 group-hover:text-white transition-colors cursor-pointer"
                       >
                         <Icon className="w-6 h-6" />
                       </motion.div>
@@ -1181,9 +1201,18 @@ function App() {
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600 rounded-full filter blur-[60px] opacity-10 group-hover:opacity-20 transition-opacity"></div>
                     <div className="relative z-10">
                       <div className="flex items-center gap-4 mb-6">
-                        <div className="bg-slate-800/80 p-3 rounded-xl border border-white/5 text-white">
+                        <motion.div 
+                          animate={{ y: [0, -4, 0] }} 
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                          transition={{ 
+                            y: { repeat: Infinity, duration: 4, ease: "easeInOut", delay: idx * 0.3 },
+                            scale: { duration: 0.2 },
+                            rotate: { duration: 0.2 }
+                          }}
+                          className="bg-slate-800/80 p-3 rounded-xl border border-white/5 text-white cursor-pointer group-hover:bg-red-600 transition-colors"
+                        >
                           <Icon className="w-6 h-6 text-red-500 group-hover:text-white transition-colors" />
-                        </div>
+                        </motion.div>
                         <h4 className="font-display text-white text-lg md:text-xl uppercase tracking-widest">{service.category}</h4>
                       </div>
                       <p className="text-slate-300 font-light mb-6 text-sm">{service.description}</p>
@@ -1883,9 +1912,14 @@ function App() {
               </span>
             </div>
           </div>
-          <p className="text-[10px] text-slate-600 uppercase tracking-[0.3em] font-bold">
-            Built for the modern driver.
-          </p>
+          <div className="flex flex-col items-center md:items-end gap-2 text-center md:text-right">
+            <p className="text-[10px] text-slate-600 uppercase tracking-[0.3em] font-bold">
+              Built for the modern driver.
+            </p>
+            <p className="text-[9px] text-slate-700 uppercase tracking-[0.4em] font-black group">
+              Powered by <span className="text-white group-hover:text-red-600 transition-colors">PROMPTFORGE</span>
+            </p>
+          </div>
         </div>
       </footer>
     </div>

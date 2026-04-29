@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MapPin, Phone, Car, Sparkles, ChevronRight, Plus, Minus, Star, Calendar, CheckCircle2, Droplets, Wind, ShieldCheck, Mail, Check, Award, Gem, ThumbsUp, Facebook, Instagram, Play, Wrench, Settings, Sun, Shield, Loader2, PlayCircle, X, History, Target, Users, Gift, Megaphone } from 'lucide-react';
+import { MapPin, Phone, Car, Sparkles, ChevronRight, Plus, Minus, Star, Calendar, CheckCircle2, Droplets, Wind, ShieldCheck, Mail, Check, Award, Gem, ThumbsUp, Facebook, Instagram, Play, Wrench, Settings, Sun, Shield, Loader2, PlayCircle, X, History, Target, Users, Gift, Megaphone, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI } from "@google/genai";
 import { initializeApp } from 'firebase/app';
@@ -145,6 +145,15 @@ const mainServices = [
 
 const specialtyServices = [
   {
+    category: "Home Service / On-Site",
+    icon: Home,
+    description: "Professional detailing brought to your doorstep. We bring our premium equipment and expertise to your location.",
+    inclusions: ["Full Detailing", "Ceramic Coating", "Interior Deep Clean", "Exterior Restoration"],
+    prices: [
+      { type: "Service Fee", price: "Starting at ₱500" }
+    ]
+  },
+  {
     category: "Motorcycle with Hydrophobic Wax",
     icon: Car,
     description: "Specialized care for two-wheelers.",
@@ -239,14 +248,13 @@ const VideoModal = ({ url, onClose }: { url: string, onClose: () => void }) => {
 const Logo = ({ className = "" }: { className?: string }) => (
   <div className={`relative flex items-center justify-center ${className}`}>
     <div className="absolute inset-0 bg-red-600 rounded-full animate-pulse opacity-20 blur-xl"></div>
-    <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center shadow-2xl">
+    <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center shadow-2xl border-2 border-white/20">
       <img 
-        src="https://scontent.fmnl17-2.fna.fbcdn.net/v/t39.30808-6/581956339_3574512362688597_4561733345864840710_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=1d70fc&_nc_eui2=AeGCESvln2DjoDusOjRthS58swOx5kqW9rizA7HmSpb2uJyOIzfAci7IF6vuOflOIIccoQ2FMuleaEitEX2LwDKE&_nc_ohc=greDeFChff8Q7kNvwEwoXLG&_nc_oc=AdrOr4KkGZh1ruaK-rTU2mVAZejEsNgb55Qtno8ND6qgOME-iu-29NooivjkGT4a1nk&_nc_zt=23&_nc_ht=scontent.fmnl17-2.fna&_nc_gid=wz8CNhBvH2dj0Hs_7pskPQ&oh=00_Af02-Nbv-4EkIfLX2YnQc3LD97WSa7dvJ-VVa53EHzdYGA&oe=69F0FC2F" 
+        src="https://scontent.fmnl17-2.fna.fbcdn.net/v/t39.30808-6/581956339_3574512362688597_4561733345864840710_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=F8Z-NUGv-WYQ7kNvwG9PXJg&_nc_oc=AdoJqAA4_oZMoprvz9iB0kDi26n5OfVzHHQi5UmwP0_rO3nyzT7GZIRxC1iu4WZaTxY&_nc_zt=23&_nc_ht=scontent.fmnl17-2.fna&_nc_gid=-jyzvrde8gU8zCQ_EJJsNQ&_nc_ss=7b2a8&oh=00_Af1rMdsvBkIWYSsev7IA65xS6XrH0HVRasbRSAtX15xC_Q&oe=69F7CBEF" 
         alt="Aesthetic Auto Atelier Logo" 
-        className="w-full h-full object-contain"
+        className="w-full h-full object-cover scale-110"
         referrerPolicy="no-referrer"
         onError={(e) => {
-          // Fallback if image doesn't exist or is empty
           e.currentTarget.src = "https://images.unsplash.com/photo-1599305090598-fe179d501227?auto=format&fit=crop&q=80&w=400&h=400";
         }}
       />
@@ -267,10 +275,11 @@ function App() {
     location: string;
     date: string;
     time: string;
+    serviceMode?: string;
     price?: string;
   } | null>(null);
 
-  const getPrice = (serviceName: string, vehicleType: string) => {
+  const getPrice = (serviceName: string, vehicleType: string, serviceMode?: string) => {
     if (!serviceName || !vehicleType) return null;
 
     const service = allServices.find(s => s.category === serviceName) as any;
@@ -304,7 +313,8 @@ function App() {
 
   const [formValues, setFormValues] = useState({
     service: '',
-    vehicleType: ''
+    vehicleType: '',
+    serviceMode: 'shop' as 'shop' | 'home'
   });
 
   const currentPrice = getPrice(formValues.service, formValues.vehicleType);
@@ -400,7 +410,8 @@ function App() {
       location: formData.get('location') as string,
       date: formData.get('date') as string,
       time: formData.get('time') as string,
-      price: getPrice(formData.get('service') as string, formData.get('vehicleType') as string) || undefined
+      serviceMode: formValues.serviceMode,
+      price: getPrice(formData.get('service') as string, formData.get('vehicleType') as string, formValues.serviceMode) || undefined
     });
     setBookingState('confirm');
     document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
@@ -650,8 +661,16 @@ function App() {
       {/* Navbar Minimal */}
       <nav className="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-50 mix-blend-difference text-white">
         <div className="flex items-center gap-3">
-          <Logo className="w-10 h-10" />
-          <div className="text-sm tracking-[0.2em] uppercase font-display font-medium">Aesthetic Auto</div>
+          <div className="relative">
+            <Logo className="w-10 h-10" />
+            <div className="absolute -top-1 -right-1 bg-emerald-500 rounded-full p-0.5 shadow-lg">
+              <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+            </div>
+          </div>
+          <div>
+            <div className="text-sm tracking-[0.2em] uppercase font-display font-medium">Aesthetic Auto</div>
+            <div className="text-[8px] text-emerald-400 font-bold tracking-[0.3em] uppercase">Eco-Certified Atelier</div>
+          </div>
         </div>
         <div className="flex gap-4">
           <a href="#booking" className="text-xs uppercase font-display tracking-widest border border-white rounded-full px-5 py-2.5 hover:bg-red-600 hover:border-red-600 transition-colors">
@@ -692,12 +711,12 @@ function App() {
 
         <div className="relative z-30 text-center px-4 mt-20 text-white max-w-5xl">
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="mb-10 flex justify-center"
+            className="mb-10 flex flex-col items-center justify-center"
           >
-            <Logo className="w-32 h-32 md:w-48 md:h-48" />
+            <Logo className="w-48 h-48 md:w-64 md:h-64 shadow-[0_0_80px_rgba(220,38,38,0.3)]" />
           </motion.div>
           <p className="text-red-400 text-sm font-display uppercase tracking-[0.3em] font-medium mb-6 animate-fade-in drop-shadow-md">Pampanga & Tarlac</p>
           <h1 className="font-display text-6xl md:text-8xl font-bold leading-none tracking-tight mb-8 drop-shadow-2xl text-shadow-sm">
@@ -1643,6 +1662,12 @@ function App() {
                     <span className="text-white font-medium">{bookingData?.vehicleType}</span>
                   </div>
                   <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/10 pb-4">
+                    <span className="text-slate-500 uppercase tracking-widest text-xs font-bold mb-1 md:mb-0">Service Mode</span>
+                    <span className={`font-bold font-display uppercase tracking-wider ${bookingData?.serviceMode === 'home' ? 'text-blue-400' : 'text-red-400'}`}>
+                      {bookingData?.serviceMode === 'home' ? 'Home Service' : 'Atelier Visit'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/10 pb-4">
                     <span className="text-slate-500 uppercase tracking-widest text-xs font-bold mb-1 md:mb-0">Location</span>
                     <span className="text-white font-medium">{bookingData?.location}</span>
                   </div>
@@ -1732,9 +1757,6 @@ function App() {
                     </optgroup>
                   </select>
                 </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8 relative z-10">
                 <div className="space-y-2">
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Vehicle Type</label>
                   <select 
@@ -1750,9 +1772,49 @@ function App() {
                     <option value="Motorcycle" className="bg-slate-900 text-white">Motorcycle</option>
                   </select>
                 </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8 relative z-10">
+                <div className="space-y-4">
+                  <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Service Mode</label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <label className={`cursor-pointer group relative flex items-center justify-center gap-2 py-3 px-4 rounded-xl border transition-all ${
+                      formValues.serviceMode === 'shop' 
+                        ? 'bg-red-600 border-red-600 text-white shadow-lg shadow-red-600/20' 
+                        : 'bg-slate-800/80 border-white/10 text-slate-400 hover:border-white/30'
+                    }`}>
+                      <input 
+                        type="radio" 
+                        name="serviceMode" 
+                        value="shop" 
+                        className="hidden" 
+                        checked={formValues.serviceMode === 'shop'}
+                        onChange={(e) => setFormValues(prev => ({ ...prev, serviceMode: e.target.value as any }))}
+                      />
+                      <Wrench className="w-4 h-4" />
+                      <span className="text-[10px] uppercase tracking-widest font-bold">Atelier</span>
+                    </label>
+                    <label className={`cursor-pointer group relative flex items-center justify-center gap-2 py-3 px-4 rounded-xl border transition-all ${
+                      formValues.serviceMode === 'home' 
+                        ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' 
+                        : 'bg-slate-800/80 border-white/10 text-slate-400 hover:border-white/30'
+                    }`}>
+                      <input 
+                        type="radio" 
+                        name="serviceMode" 
+                        value="home" 
+                        className="hidden" 
+                        checked={formValues.serviceMode === 'home'}
+                        onChange={(e) => setFormValues(prev => ({ ...prev, serviceMode: e.target.value as any }))}
+                      />
+                      <Home className="w-4 h-4" />
+                      <span className="text-[10px] uppercase tracking-widest font-bold">Home</span>
+                    </label>
+                  </div>
+                </div>
                 <div className="space-y-2">
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Exact Location (Pampanga/Tarlac)</label>
-                  <input required name="location" type="text" className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors placeholder:text-slate-500" placeholder="Street, Village, City" />
+                  <input required name="location" type="text" className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors placeholder:text-slate-500" placeholder={formValues.serviceMode === 'home' ? "Full Home Address" : "City/Province"} />
                 </div>
               </div>
 

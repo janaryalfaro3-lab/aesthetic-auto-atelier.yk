@@ -254,14 +254,14 @@ const Logo = ({ className = "" }: { className?: string }) => {
         <img 
           src="/logo.png" 
           alt="Aesthetic Auto Atelier Logo" 
-          className="w-full h-full object-contain drop-shadow-lg"
+          className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.15)]"
           loading="eager"
           referrerPolicy="no-referrer"
           onError={() => setError(true)}
         />
       ) : (
-        <div className="flex flex-col items-center justify-center text-center">
-           <Sparkles className="text-red-500 w-1/2 h-1/2" />
+        <div className="flex flex-col items-center justify-center text-center p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+           <Car className="text-red-500 w-1/2 h-1/2" />
            <span className="text-[10px] font-display font-black text-white leading-none mt-1 tracking-tighter">AAA</span>
         </div>
       )}
@@ -700,31 +700,37 @@ function App() {
       </div>
       
       {/* Navbar Minimal */}
-      <nav className="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-50 mix-blend-difference text-white">
+      <nav className="fixed top-0 inset-x-0 p-4 md:p-6 flex justify-between items-center z-[100] bg-slate-950/40 backdrop-blur-xl border-b border-white/5 text-white">
         <div className="flex items-center gap-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1 }}
+            className="cursor-pointer"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             <Logo className="w-10 h-10 md:w-12 md:h-12" />
           </motion.div>
           <div className="flex flex-col">
-            <div className="text-sm tracking-[0.2em] uppercase font-display font-medium">Aesthetic Auto</div>
+            <div className="text-sm md:text-base tracking-[0.2em] uppercase font-display font-bold text-white group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              Aesthetic <span className="text-red-600">Auto</span>
+            </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ring-2 ring-emerald-500/20"></span>
-              <span className="text-[10px] text-emerald-400 font-display font-bold uppercase tracking-widest leading-none">Eco-Certified Atelier</span>
+              <span className="text-[8px] md:text-[10px] text-emerald-400 font-display font-bold uppercase tracking-[0.2em] leading-none">Eco-Certified Atelier</span>
             </div>
           </div>
         </div>
-        <motion.button 
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => scrollToSection("booking")}
-          className="px-6 py-2 border border-white/20 bg-white/5 rounded-full text-xs font-display uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-500 shadow-xl backdrop-blur-md"
-        >
-          Book Now
-        </motion.button>
+        <div className="flex items-center gap-4">
+          <motion.button 
+            whileHover={{ scale: 1.05, backgroundColor: '#dc2626', color: 'white' }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => scrollToSection("booking")}
+            className="px-5 py-2 md:px-7 md:py-2.5 border border-white/20 bg-white/5 rounded-full text-[10px] md:text-xs font-display uppercase tracking-widest transition-all duration-500 shadow-xl backdrop-blur-md font-bold"
+          >
+            Book Now
+          </motion.button>
+        </div>
       </nav>
 
       {/* Hero Section */}
@@ -758,8 +764,6 @@ function App() {
         <div className="absolute inset-x-0 bottom-0 h-40 z-20 bg-gradient-to-t from-slate-900/40 to-transparent pointer-events-none"></div>
 
         <div className="relative z-30 text-center px-4 text-white max-w-5xl flex flex-col items-center justify-center pt-24 md:pt-0">
-
-
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -770,45 +774,54 @@ function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
-              className="relative w-full max-w-3xl group mx-auto"
+              className="relative w-full max-w-4xl group mx-auto"
             >
-              <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+              <div className="absolute -inset-4 bg-gradient-to-r from-red-600 via-blue-600 to-red-600 rounded-3xl blur-3xl opacity-10 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
               <img 
                 src="/banner.png" 
                 alt="Aesthetic Auto Atelier Banner" 
-                className="relative w-full h-auto max-h-[160px] md:max-h-[280px] object-contain rounded-2xl shadow-3xl border border-white/5"
+                className="relative w-full h-auto max-h-[220px] md:max-h-[350px] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5"
                 referrerPolicy="no-referrer"
-                onError={(e) => e.currentTarget.style.display = 'none'}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             </motion.div>
           </motion.div>
           
-          <div className="space-y-4 md:space-y-6">
-            <h1 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-black leading-[1] tracking-tighter drop-shadow-2xl text-shadow-sm text-white">
+          <div className="space-y-6 md:space-y-8">
+            <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-[0.9] tracking-tighter drop-shadow-[0_5px_30px_rgba(0,0,0,0.8)] text-white italic">
               AESTHETIC <br className="hidden sm:block"/> 
               <span className="bg-gradient-to-r from-red-600 via-white to-blue-500 bg-clip-text text-transparent">AUTO ATELIER</span>
             </h1>
-            <div className="h-px w-20 md:w-32 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto"></div>
-            <p className="text-blue-100 font-sans text-xs md:text-sm lg:text-base tracking-[0.3em] max-w-2xl mx-auto uppercase drop-shadow-md leading-relaxed font-medium">
-              The Pinnacle of Automotive Enhancement <br className="hidden md:block"/>
-              <span className="inline-flex items-center gap-4 mt-2">
-                <span className="text-red-500 font-bold">Ultra Detailing</span> 
+            <div className="h-px w-24 md:w-48 bg-gradient-to-r from-transparent via-red-600 to-transparent mx-auto"></div>
+            <p className="text-blue-50/80 font-sans text-xs md:text-sm lg:text-lg tracking-[0.4em] max-w-3xl mx-auto uppercase drop-shadow-md leading-relaxed font-semibold">
+              The Absolute Pinnacle of Automotive Enhancement <br className="hidden md:block"/>
+              <span className="inline-flex flex-wrap justify-center items-center gap-x-6 gap-y-2 mt-4 text-[10px] md:text-sm">
+                <span className="flex items-center gap-2 text-red-500"><Sparkles className="w-3 h-3 md:w-4 md:h-4" /> Ultra Detailing</span> 
                 <span className="w-1 h-1 rounded-full bg-white/20"></span>
-                <span className="text-blue-400 font-bold">Ceramic Coating</span>
+                <span className="flex items-center gap-2 text-blue-400"><ShieldCheck className="w-3 h-3 md:w-4 md:h-4" /> Ceramic Coating</span>
                 <span className="w-1 h-1 rounded-full bg-white/20"></span>
-                <span className="text-white font-bold font-display">Mobile Service</span>
+                <span className="flex items-center gap-2 text-white"><MapPin className="w-3 h-3 md:w-4 md:h-4" /> Home Service</span>
               </span>
             </p>
           </div>
 
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
-            className="absolute bottom-[-100px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, duration: 1 }}
+            className="mt-12 md:mt-20 flex flex-col items-center gap-4"
           >
-            <span className="text-[10px] uppercase tracking-widest text-white/40 font-display">Discover Excellence</span>
-            <div className="w-px h-12 bg-gradient-to-b from-white/40 to-transparent animate-pulse"></div>
+            <motion.button
+              whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(220, 38, 38, 0.4)' }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => scrollToSection("booking")}
+              className="bg-red-600 hover:bg-red-700 text-white px-10 py-4 rounded-full font-display font-bold text-lg uppercase tracking-widest shadow-2xl transition-all duration-300 flex items-center gap-3"
+            >
+              Start Transformation <ChevronRight className="w-5 h-5" />
+            </motion.button>
+            <span className="text-[10px] uppercase tracking-[0.5em] text-white/40 font-display animate-pulse mt-4">Scroll to discover</span>
           </motion.div>
         </div>
       </header>

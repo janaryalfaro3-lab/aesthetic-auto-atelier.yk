@@ -26,12 +26,10 @@ async function setupAndStart() {
     });
   }
 
-  // Only start listening if not being called by a test runner or Vercel
-  if (process.env.NODE_ENV !== 'test') {
-    app.listen(PORT, "0.0.0.0", async () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
-  }
+  // Start listening
+  app.listen(PORT, "0.0.0.0", async () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
 }
 
 setupAndStart();

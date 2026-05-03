@@ -247,12 +247,14 @@ const VideoModal = ({ url, onClose }: { url: string, onClose: () => void }) => {
 
 const Logo = ({ className = "" }: { className?: string }) => (
   <div className={`relative flex items-center justify-center ${className}`}>
-    <div className="absolute inset-0 bg-red-600 rounded-full animate-pulse opacity-20 blur-xl"></div>
-    <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center shadow-2xl border-2 border-white/20">
+    <div className="absolute -top-1 -right-1 z-10 bg-emerald-500 rounded-full p-1 shadow-lg border border-white/20">
+      <Sparkles className="w-3 h-3 text-white" />
+    </div>
+    <div className="relative w-full h-full flex items-center justify-center">
       <img 
         src="/logo.png" 
         alt="Aesthetic Auto Atelier Logo" 
-        className="w-full h-full object-cover scale-110"
+        className="w-full h-full object-contain"
         referrerPolicy="no-referrer"
         onError={(e) => {
           e.currentTarget.src = "https://images.unsplash.com/photo-1599305090598-fe179d501227?auto=format&fit=crop&q=80&w=400&h=400";
@@ -669,13 +671,7 @@ function App() {
       
       {/* Navbar Minimal */}
       <nav className="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-50 mix-blend-difference text-white">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Logo className="w-10 h-10" />
-            <div className="absolute -top-1 -right-1 bg-emerald-500 rounded-full p-0.5 shadow-lg">
-              <CheckCircle2 className="w-2.5 h-2.5 text-white" />
-            </div>
-          </div>
+        <div className="flex items-center">
           <div>
             <div className="text-sm tracking-[0.2em] uppercase font-display font-medium">Aesthetic Auto</div>
             <div className="flex items-center gap-1.5 mt-0.5">
@@ -692,7 +688,7 @@ function App() {
       </nav>
 
       {/* Hero Section */}
-      <header className="relative h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-transparent">
+      <header className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-transparent py-20">
         
         {/* Dynamic Laser Sweeps (Inspection Lights) */}
         <div className="absolute inset-0 z-10 overflow-hidden opacity-50 mix-blend-screen pointer-events-none">
@@ -721,24 +717,41 @@ function App() {
         {/* Bottom Fade to Match Next Section */}
         <div className="absolute inset-x-0 bottom-0 h-40 z-20 bg-gradient-to-t from-slate-900/40 to-transparent pointer-events-none"></div>
 
-        <div className="relative z-30 text-center px-4 mt-20 text-white max-w-5xl">
+        <div className="relative z-30 text-center px-4 text-white max-w-5xl flex flex-col items-center justify-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="mb-10 flex flex-col items-center justify-center"
+            className="mb-10 w-full flex flex-col items-center justify-center gap-6"
           >
-            <Logo className="w-48 h-48 md:w-64 md:h-64 shadow-[0_0_80px_rgba(220,38,38,0.3)]" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="relative w-full max-w-3xl group mx-auto"
+            >
+              <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+              <img 
+                src="/banner.png" 
+                alt="Aesthetic Auto Atelier Banner" 
+                className="relative w-full h-auto max-h-[300px] object-contain rounded-2xl shadow-2xl border border-white/10"
+                referrerPolicy="no-referrer"
+                onError={(e) => e.currentTarget.style.display = 'none'}
+              />
+            </motion.div>
           </motion.div>
-          <p className="text-red-400 text-sm font-display uppercase tracking-[0.3em] font-medium mb-6 animate-fade-in drop-shadow-md">Pampanga & Tarlac</p>
-          <h1 className="font-display text-6xl md:text-8xl font-bold leading-none tracking-tight mb-8 drop-shadow-2xl text-shadow-sm">
-            <span className="text-white">AESTHETIC</span> <br className="hidden md:block"/> 
-            <span className="bg-gradient-to-r from-red-600 to-white bg-clip-text text-transparent">AUTO ATELIER</span>
-          </h1>
-          <p className="text-blue-100 font-sans text-sm md:text-base tracking-[0.2em] max-w-xl mx-auto uppercase drop-shadow-md leading-relaxed">
-            The Pinnacle of Automotive Enhancement <br/>
-            <span className="text-red-500 font-bold">Ultra Detailing</span> <span className="mx-2 text-white/40">•</span> <span className="text-blue-400">Ceramic Coating</span> <span className="mx-2 text-white/40">•</span> <span className="text-white">Home Service</span>
-          </p>
+          
+          <div className="space-y-4">
+            <p className="text-red-400 text-sm font-display uppercase tracking-[0.3em] font-medium animate-fade-in drop-shadow-md">Pampanga & Tarlac</p>
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-tight tracking-tight drop-shadow-2xl text-shadow-sm">
+              <span className="text-white">AESTHETIC</span> <br className="hidden sm:block"/> 
+              <span className="bg-gradient-to-r from-red-600 to-white bg-clip-text text-transparent">AUTO ATELIER</span>
+            </h1>
+            <p className="text-blue-100 font-sans text-xs md:text-sm lg:text-base tracking-[0.2em] max-w-2xl mx-auto uppercase drop-shadow-md leading-relaxed">
+              The Pinnacle of Automotive Enhancement <br className="hidden md:block"/>
+              <span className="text-red-500 font-bold">Ultra Detailing</span> <span className="mx-2 text-white/40">•</span> <span className="text-blue-400">Ceramic Coating</span> <span className="mx-2 text-white/40">•</span> <span className="text-white">Home Service</span>
+            </p>
+          </div>
         </div>
       </header>
 

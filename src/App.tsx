@@ -254,15 +254,15 @@ const Logo = ({ className = "" }: { className?: string }) => {
         <img 
           src="/logo.png" 
           alt="Aesthetic Auto Atelier Logo" 
-          className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+          className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-105 transition-transform duration-500"
           loading="eager"
           referrerPolicy="no-referrer"
           onError={() => setError(true)}
         />
       ) : (
-        <div className="flex flex-col items-center justify-center text-center p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-           <Car className="text-red-500 w-1/2 h-1/2" />
-           <span className="text-[10px] font-display font-black text-white leading-none mt-1 tracking-tighter">AAA</span>
+        <div className="flex flex-col items-center justify-center text-center p-2 rounded-xl bg-gradient-to-br from-red-600/20 to-blue-600/20 border border-white/10 backdrop-blur-md w-full h-full">
+           <Car className="text-red-500 w-1/2 h-1/2 drop-shadow-lg" />
+           <span className="text-[10px] font-display font-black text-white leading-none mt-1 tracking-tighter uppercase">AAA</span>
         </div>
       )}
     </div>

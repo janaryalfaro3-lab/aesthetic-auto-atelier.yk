@@ -26,10 +26,12 @@ async function setupAndStart() {
     });
   }
 
-  // Start listening
-  app.listen(PORT, "0.0.0.0", async () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  // Skip listening if running on Vercel
+  if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+    app.listen(PORT, "0.0.0.0", async () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  }
 }
 
 setupAndStart();

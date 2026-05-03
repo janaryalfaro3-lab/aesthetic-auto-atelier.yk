@@ -20,18 +20,18 @@ async function setupAndStart() {
     app.use(vite.middlewares);
   } else {
     // Production (AI Studio Managed) or Vercel Proxy
-    // Note: Vercel will serve static files via vercel.json rewrites normally,
-    // but we keep this for standalone production node runtime.
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      // Small check to avoid crashing if dist/index.html is missing on Vercel
-      res.sendFile(path.join(distPath, "index.html"), (err) => {
-        if (err) {
-          res.status(404).send("Frontend not build or routed incorrectly on Vercel backend function.");
-        }
+    // Note: On Vercel, static files are served via the edge network, not this function.
+    if (!process.env.VERCEL) {
+      const distPath = path.join(process.cwd(), "dist");
+      app.use(express.static(distPath));
+      app.get("*", (req, res) => {
+        res.sendFile(path.join(distPath, "index.html"), (err) => {
+          if (err) {
+            res.status(404).send("Frontend assets not found in standalone mode.");
+          }
+        });
       });
-    });
+    }
   }
 
   // Skip listening if running on Vercel

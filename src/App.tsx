@@ -249,12 +249,12 @@ const Logo = ({ className = "" }: { className?: string }) => {
   const [error, setError] = useState(false);
   
   return (
-    <div className={`relative flex items-center justify-center ${className}`}>
+    <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {!error ? (
         <img 
           src="/logo.png" 
-          alt="Aesthetic Auto Atelier Logo" 
-          className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-105 transition-transform duration-500"
+          alt="AAA Logo" 
+          className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:scale-110 transition-transform duration-700 ease-out"
           loading="eager"
           referrerPolicy="no-referrer"
           onError={() => setError(true)}

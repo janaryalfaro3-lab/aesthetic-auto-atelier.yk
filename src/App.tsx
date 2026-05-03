@@ -245,24 +245,29 @@ const VideoModal = ({ url, onClose }: { url: string, onClose: () => void }) => {
   );
 };
 
-const Logo = ({ className = "" }: { className?: string }) => (
-  <div className={`relative flex items-center justify-center ${className}`}>
-    <div className="absolute -top-1 -right-1 z-10 bg-emerald-500 rounded-full p-1 shadow-lg border border-white/20">
-      <Sparkles className="w-3 h-3 text-white" />
+const Logo = ({ className = "" }: { className?: string }) => {
+  const [error, setError] = useState(false);
+  
+  return (
+    <div className={`relative flex items-center justify-center ${className}`}>
+      {!error ? (
+        <img 
+          src="/logo.png" 
+          alt="Aesthetic Auto Atelier Logo" 
+          className="w-full h-full object-contain drop-shadow-lg"
+          loading="eager"
+          referrerPolicy="no-referrer"
+          onError={() => setError(true)}
+        />
+      ) : (
+        <div className="flex flex-col items-center justify-center text-center">
+           <Sparkles className="text-red-500 w-1/2 h-1/2" />
+           <span className="text-[10px] font-display font-black text-white leading-none mt-1 tracking-tighter">AAA</span>
+        </div>
+      )}
     </div>
-    <div className="relative w-full h-full flex items-center justify-center">
-      <img 
-        src="/logo.png" 
-        alt="Aesthetic Auto Atelier Logo" 
-        className="w-full h-full object-contain"
-        referrerPolicy="no-referrer"
-        onError={(e) => {
-          e.currentTarget.src = "https://images.unsplash.com/photo-1599305090598-fe179d501227?auto=format&fit=crop&q=80&w=400&h=400";
-        }}
-      />
-    </div>
-  </div>
-);
+  );
+};
 
 function App() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -318,6 +323,30 @@ function App() {
     vehicleType: '',
     serviceMode: 'shop' as 'shop' | 'home'
   });
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(err => {
+        console.log("Autoplay blocked or video failed:", err);
+      });
+    }
+  }, []);
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const currentPrice = getPrice(formValues.service, formValues.vehicleType);
 
@@ -647,6 +676,7 @@ function App() {
       {/* GLOBAL 3D BACKGROUND WALLPAPER */}
       <div className="fixed inset-0 z-[-1] bg-slate-950">
         <video 
+          ref={videoRef}
           src="/videocar.mp4" 
           autoPlay 
           muted 
@@ -671,20 +701,30 @@ function App() {
       
       {/* Navbar Minimal */}
       <nav className="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-50 mix-blend-difference text-white">
-        <div className="flex items-center">
-          <div>
+        <div className="flex items-center gap-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1 }}
+          >
+            <Logo className="w-10 h-10 md:w-12 md:h-12" />
+          </motion.div>
+          <div className="flex flex-col">
             <div className="text-sm tracking-[0.2em] uppercase font-display font-medium">Aesthetic Auto</div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-              <div className="text-[8px] text-emerald-400 font-bold tracking-[0.3em] uppercase">Eco-Certified Atelier</div>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ring-2 ring-emerald-500/20"></span>
+              <span className="text-[10px] text-emerald-400 font-display font-bold uppercase tracking-widest leading-none">Eco-Certified Atelier</span>
             </div>
           </div>
         </div>
-        <div className="flex gap-4">
-          <a href="#booking" className="text-xs uppercase font-display tracking-widest border border-white rounded-full px-5 py-2.5 hover:bg-red-600 hover:border-red-600 transition-colors">
-            Book Now
-          </a>
-        </div>
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => scrollToSection("booking")}
+          className="px-6 py-2 border border-white/20 bg-white/5 rounded-full text-xs font-display uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-500 shadow-xl backdrop-blur-md"
+        >
+          Book Now
+        </motion.button>
       </nav>
 
       {/* Hero Section */}
@@ -717,7 +757,9 @@ function App() {
         {/* Bottom Fade to Match Next Section */}
         <div className="absolute inset-x-0 bottom-0 h-40 z-20 bg-gradient-to-t from-slate-900/40 to-transparent pointer-events-none"></div>
 
-        <div className="relative z-30 text-center px-4 text-white max-w-5xl flex flex-col items-center justify-center">
+        <div className="relative z-30 text-center px-4 text-white max-w-5xl flex flex-col items-center justify-center pt-24 md:pt-0">
+
+
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -730,28 +772,44 @@ function App() {
               transition={{ delay: 0.4, duration: 0.8 }}
               className="relative w-full max-w-3xl group mx-auto"
             >
-              <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
               <img 
                 src="/banner.png" 
                 alt="Aesthetic Auto Atelier Banner" 
-                className="relative w-full h-auto max-h-[300px] object-contain rounded-2xl shadow-2xl border border-white/10"
+                className="relative w-full h-auto max-h-[160px] md:max-h-[280px] object-contain rounded-2xl shadow-3xl border border-white/5"
                 referrerPolicy="no-referrer"
                 onError={(e) => e.currentTarget.style.display = 'none'}
               />
             </motion.div>
           </motion.div>
           
-          <div className="space-y-4">
-            <p className="text-red-400 text-sm font-display uppercase tracking-[0.3em] font-medium animate-fade-in drop-shadow-md">Pampanga & Tarlac</p>
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-tight tracking-tight drop-shadow-2xl text-shadow-sm">
-              <span className="text-white">AESTHETIC</span> <br className="hidden sm:block"/> 
-              <span className="bg-gradient-to-r from-red-600 to-white bg-clip-text text-transparent">AUTO ATELIER</span>
+          <div className="space-y-4 md:space-y-6">
+            <h1 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-black leading-[1] tracking-tighter drop-shadow-2xl text-shadow-sm text-white">
+              AESTHETIC <br className="hidden sm:block"/> 
+              <span className="bg-gradient-to-r from-red-600 via-white to-blue-500 bg-clip-text text-transparent">AUTO ATELIER</span>
             </h1>
-            <p className="text-blue-100 font-sans text-xs md:text-sm lg:text-base tracking-[0.2em] max-w-2xl mx-auto uppercase drop-shadow-md leading-relaxed">
+            <div className="h-px w-20 md:w-32 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto"></div>
+            <p className="text-blue-100 font-sans text-xs md:text-sm lg:text-base tracking-[0.3em] max-w-2xl mx-auto uppercase drop-shadow-md leading-relaxed font-medium">
               The Pinnacle of Automotive Enhancement <br className="hidden md:block"/>
-              <span className="text-red-500 font-bold">Ultra Detailing</span> <span className="mx-2 text-white/40">•</span> <span className="text-blue-400">Ceramic Coating</span> <span className="mx-2 text-white/40">•</span> <span className="text-white">Home Service</span>
+              <span className="inline-flex items-center gap-4 mt-2">
+                <span className="text-red-500 font-bold">Ultra Detailing</span> 
+                <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                <span className="text-blue-400 font-bold">Ceramic Coating</span>
+                <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                <span className="text-white font-bold font-display">Mobile Service</span>
+              </span>
             </p>
           </div>
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5 }}
+            className="absolute bottom-[-100px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          >
+            <span className="text-[10px] uppercase tracking-widest text-white/40 font-display">Discover Excellence</span>
+            <div className="w-px h-12 bg-gradient-to-b from-white/40 to-transparent animate-pulse"></div>
+          </motion.div>
         </div>
       </header>
 

@@ -250,7 +250,7 @@ const Logo = ({ className = "" }: { className?: string }) => (
     <div className="absolute inset-0 bg-red-600 rounded-full animate-pulse opacity-20 blur-xl"></div>
     <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center shadow-2xl border-2 border-white/20">
       <img 
-        src="https://scontent.fmnl17-2.fna.fbcdn.net/v/t39.30808-6/581956339_3574512362688597_4561733345864840710_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=F8Z-NUGv-WYQ7kNvwG9PXJg&_nc_oc=AdoJqAA4_oZMoprvz9iB0kDi26n5OfVzHHQi5UmwP0_rO3nyzT7GZIRxC1iu4WZaTxY&_nc_zt=23&_nc_ht=scontent.fmnl17-2.fna&_nc_gid=-jyzvrde8gU8zCQ_EJJsNQ&_nc_ss=7b2a8&oh=00_Af1rMdsvBkIWYSsev7IA65xS6XrH0HVRasbRSAtX15xC_Q&oe=69F7CBEF" 
+        src="/logo.png" 
         alt="Aesthetic Auto Atelier Logo" 
         className="w-full h-full object-cover scale-110"
         referrerPolicy="no-referrer"
@@ -644,10 +644,19 @@ function App() {
       
       {/* GLOBAL 3D BACKGROUND WALLPAPER */}
       <div className="fixed inset-0 z-[-1] bg-slate-950">
+        <video 
+          src="/videocar.mp4" 
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          className="w-full h-full object-cover opacity-40 pointer-events-none"
+        />
+        {/* Fallback image if video fails to load or for better layering */}
         <img 
           src="https://images.unsplash.com/photo-1553440569-bcc63803a83d?q=80&w=2070&auto=format&fit=crop" 
           alt="3D Red and Blue Car Background" 
-          className="w-full h-full object-cover opacity-60 pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none mix-blend-overlay"
           referrerPolicy="no-referrer"
         />
         {/* Atmospheric Gradients overlay to ensure content is readable */}
@@ -669,7 +678,10 @@ function App() {
           </div>
           <div>
             <div className="text-sm tracking-[0.2em] uppercase font-display font-medium">Aesthetic Auto</div>
-            <div className="text-[8px] text-emerald-400 font-bold tracking-[0.3em] uppercase">Eco-Certified Atelier</div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+              <div className="text-[8px] text-emerald-400 font-bold tracking-[0.3em] uppercase">Eco-Certified Atelier</div>
+            </div>
           </div>
         </div>
         <div className="flex gap-4">
@@ -1978,8 +1990,9 @@ function App() {
             <p className="text-[10px] text-slate-600 uppercase tracking-[0.3em] font-bold">
               Built for the modern driver.
             </p>
-            <p className="text-[9px] text-slate-700 uppercase tracking-[0.4em] font-black group">
-              Powered by <span className="text-white group-hover:text-red-600 transition-colors">PROMPTFORGE</span>
+            <p className="text-[9px] text-slate-700 uppercase tracking-[0.4em] font-black group flex items-center gap-2">
+              <span>Powered by</span> 
+              <span className="text-white group-hover:text-red-600 transition-colors bg-white/5 px-2 py-0.5 rounded border border-white/10">PROMPTFORGE</span>
             </p>
           </div>
         </div>

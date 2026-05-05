@@ -247,24 +247,17 @@ const VideoModal = ({ url, onClose }: { url: string, onClose: () => void }) => {
 
 const Logo = ({ className = "" }: { className?: string }) => {
   const [error, setError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
   
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {!error ? (
         <img 
-          src={`/logo.png?v=${retryCount}`} 
+          src="/logo.png" 
           alt="AAA Logo" 
           className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:scale-110 transition-transform duration-700 ease-out"
           loading="eager"
           referrerPolicy="no-referrer"
-          onError={() => {
-            if (retryCount < 2) {
-              setTimeout(() => setRetryCount(prev => prev + 1), 1000);
-            } else {
-              setError(true);
-            }
-          }}
+          onError={() => setError(true)}
         />
       ) : (
         <div className="flex flex-col items-center justify-center text-center p-2 rounded-xl bg-gradient-to-br from-red-600/20 to-blue-600/20 border border-white/10 backdrop-blur-md w-full h-full">

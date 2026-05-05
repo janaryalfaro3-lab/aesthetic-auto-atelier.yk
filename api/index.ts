@@ -9,20 +9,26 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
-// Resolve paths relative to the current working directory
 const rootDir = process.cwd();
 const distPath = path.resolve(rootDir, "dist");
 const publicPath = path.resolve(rootDir, "public");
 
-console.log(`[Server] Static Root: ${distPath}`);
-console.log(`[Server] Public Root: ${publicPath}`);
-
 // 1. Logging middleware
 app.use((req, res, next) => {
   if (!req.url.startsWith('/api') && !req.url.includes('/assets/')) {
-    console.log(`[Request] ${req.method} ${req.url}`);
+    console.log(`[Request] ${req.method} ${req.url} - From: ${req.ip}`);
   }
   next();
+});
+
+// Debug route to verify file existence
+app.get("/api/debug-files", (req, res) => {
+  const files = fs.existsSync(distPath) ? fs.readdirSync(distPath) : ["dist-not-found"];
+  res.json({
+    distPath,
+    files,
+    cwd: process.cwd()
+  });
 });
 
 // 2. Health check
@@ -30,7 +36,6 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// 3. Static assets with high priority
 const staticOptions = {
   maxAge: '1d',
   etag: true,
@@ -42,6 +47,7 @@ const staticOptions = {
   }
 };
 
+// Serve static files with high priority
 app.use(express.static(distPath, staticOptions));
 app.use(express.static(publicPath, staticOptions));
 

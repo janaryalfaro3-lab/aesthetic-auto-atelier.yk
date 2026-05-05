@@ -388,30 +388,8 @@ function App() {
   const [serviceVideos, setServiceVideos] = useState<Record<string, ServiceVideo>>({});
   const currentPrice = getPrice(formValues.service, formValues.vehicleType, formValues.serviceMode);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
-  const [isKeySelected, setIsKeySelected] = useState<boolean>(false);
-
-  useEffect(() => {
-    const checkKey = async () => {
-      if ((window as any).aistudio?.hasSelectedApiKey) {
-        const selected = await (window as any).aistudio.hasSelectedApiKey();
-        setIsKeySelected(selected);
-      }
-    };
-    checkKey();
-  }, []);
-
-  const selectKey = async () => {
-    if ((window as any).aistudio?.openSelectKey) {
-      await (window as any).aistudio.openSelectKey();
-      setIsKeySelected(true);
-    }
-  };
 
   const generateVideo = async (serviceName: string) => {
-    if (!isKeySelected) {
-      await selectKey();
-    }
-
     setServiceVideos(prev => ({
       ...prev,
       [serviceName]: { url: '', isGenerating: true }

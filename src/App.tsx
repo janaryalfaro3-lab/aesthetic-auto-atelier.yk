@@ -662,13 +662,14 @@ function App() {
       <div className="fixed inset-0 z-[-1] bg-slate-950">
         <video 
           ref={videoRef}
-          src="/videocar.mp4" 
           autoPlay 
           muted 
           loop 
           playsInline
           className="w-full h-full object-cover opacity-40 pointer-events-none"
-        />
+        >
+          <source src="/videocar.mp4" type="video/mp4" />
+        </video>
         {/* Fallback image if video fails to load or for better layering */}
         <img 
           src="https://images.unsplash.com/photo-1553440569-bcc63803a83d?q=80&w=2070&auto=format&fit=crop" 

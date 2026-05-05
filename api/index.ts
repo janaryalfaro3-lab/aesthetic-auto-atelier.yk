@@ -14,9 +14,8 @@ const rootDir = process.cwd();
 const distPath = path.join(rootDir, "dist");
 const publicPath = path.join(rootDir, "public");
 
-console.log(`[Server] Root: ${rootDir}`);
-console.log(`[Server] Dist: ${distPath}`);
-console.log(`[Server] Public: ${publicPath}`);
+// Vercel specific: Ensure we check the current directory if dist is moved
+console.log(`[Server] Searching assets in: ${distPath}, ${publicPath}`);
 
 // 1. Static files first - this should handle logo.png, banner.png, videocar.mp4 automatically
 // if they exist in /dist or /public

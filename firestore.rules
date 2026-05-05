@@ -12,7 +12,8 @@ service cloud.firestore {
                     && (request.resource.data['time'] == 'morning' || request.resource.data['time'] == 'afternoon')
                     && request.resource.data.status == 'pending'
                     && request.resource.data.createdAt == request.time;
-      allow read, update, delete: if request.auth != null && request.auth.token.email == 'jaesthetic.info@gmail.com' && request.auth.token.email_verified == true;
+      allow read: if true;
+      allow update, delete: if false; // Keep write restricted to ensure data integrity, but allow public read for "frontend-like" behavior
     }
   }
 }

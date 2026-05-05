@@ -2,6 +2,6 @@
   "version": 2,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.ts" },
-    { "source": "/((?!api|favicon.ico|logo.png|banner.png|videocar.mp4).*)", "destination": "/index.html" }
+    { "source": "/((?!api|favicon.ico|logo.png|banner.png|videocar.mp4|manifest.json|robots.txt).*)", "destination": "/index.html" }
   ]
 }

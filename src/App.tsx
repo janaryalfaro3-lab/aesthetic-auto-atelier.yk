@@ -273,18 +273,18 @@ function App() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [bookingState, setBookingState] = useState<'idle' | 'confirm' | 'submitting' | 'success'>('idle');
   const [customerName, setCustomerName] = useState('');
-  const [bookingData, setBookingData] = useState<{
-    fullName: string;
-    phone: string;
-    email: string;
-    service: string;
-    vehicleType: string;
-    location: string;
-    date: string;
-    time: string;
-    serviceMode?: string;
-    price?: string;
-  } | null>(null);
+  const [formValues, setFormValues] = useState({
+    fullName: '',
+    phone: '',
+    email: '',
+    service: '',
+    vehicleType: '',
+    location: '',
+    date: '',
+    time: '',
+    serviceMode: 'shop' as 'shop' | 'home'
+  });
+  const [bookingData, setBookingData] = useState<typeof formValues | null>(null);
 
   const getPrice = (serviceName: string, vehicleType: string, serviceMode?: string) => {
     if (!serviceName || !vehicleType) return null;
@@ -318,12 +318,6 @@ function App() {
     return priceObj?.price || null;
   };
 
-  const [formValues, setFormValues] = useState({
-    service: '',
-    vehicleType: '',
-    serviceMode: 'shop' as 'shop' | 'home'
-  });
-
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -348,9 +342,8 @@ function App() {
     }
   };
 
-  const currentPrice = getPrice(formValues.service, formValues.vehicleType);
-
   const [serviceVideos, setServiceVideos] = useState<Record<string, ServiceVideo>>({});
+  const currentPrice = getPrice(formValues.service, formValues.vehicleType, formValues.serviceMode);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const [isKeySelected, setIsKeySelected] = useState<boolean>(false);
 
@@ -431,19 +424,11 @@ function App() {
 
   const handleBookingSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    const price = getPrice(formValues.service, formValues.vehicleType, formValues.serviceMode) || undefined;
     setBookingData({
-      fullName: formData.get('fullName') as string,
-      phone: formData.get('phone') as string,
-      email: formData.get('email') as string,
-      service: formData.get('service') as string,
-      vehicleType: formData.get('vehicleType') as string,
-      location: formData.get('location') as string,
-      date: formData.get('date') as string,
-      time: formData.get('time') as string,
-      serviceMode: formValues.serviceMode,
-      price: getPrice(formData.get('service') as string, formData.get('vehicleType') as string, formValues.serviceMode) || undefined
-    });
+      ...formValues,
+      price
+    } as any);
     setBookingState('confirm');
     document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -721,6 +706,20 @@ function App() {
             </div>
           </div>
         </div>
+
+        {/* Navigation Shortcuts */}
+        <div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+          {['services', 'gallery', 'faq', 'contact'].map((item) => (
+            <button
+              key={item}
+              onClick={() => scrollToSection(item)}
+              className="text-[10px] uppercase tracking-[0.4em] font-display font-bold text-white/50 hover:text-red-500 transition-all duration-300 cursor-pointer"
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
         <div className="flex items-center gap-4">
           <motion.button 
             whileHover={{ scale: 1.05, backgroundColor: '#dc2626', color: 'white' }}
@@ -763,7 +762,7 @@ function App() {
         {/* Bottom Fade to Match Next Section */}
         <div className="absolute inset-x-0 bottom-0 h-40 z-20 bg-gradient-to-t from-slate-900/40 to-transparent pointer-events-none"></div>
 
-        <div className="relative z-30 text-center px-4 text-white max-w-5xl flex flex-col items-center justify-center pt-24 md:pt-0">
+        <div className="relative z-30 text-center px-6 md:px-10 text-white max-w-6xl flex flex-col items-center justify-center pt-24 md:pt-0">
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -774,7 +773,7 @@ function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
-              className="relative w-full max-w-4xl group mx-auto"
+              className="relative w-full max-w-4xl group mx-auto px-4"
             >
               <div className="absolute -inset-4 bg-gradient-to-r from-red-600 via-blue-600 to-red-600 rounded-3xl blur-3xl opacity-10 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
               <img 
@@ -789,10 +788,10 @@ function App() {
             </motion.div>
           </motion.div>
           
-          <div className="space-y-6 md:space-y-8">
-            <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-[0.9] tracking-tighter drop-shadow-[0_5px_30px_rgba(0,0,0,0.8)] text-white italic">
+          <div className="space-y-6 md:space-y-8 w-full max-w-7xl px-8">
+            <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-[0.9] tracking-tighter drop-shadow-[0_5px_30px_rgba(0,0,0,0.8)] text-white italic py-4">
               AESTHETIC <br className="hidden sm:block"/> 
-              <span className="bg-gradient-to-r from-red-600 via-white to-blue-500 bg-clip-text text-transparent">AUTO ATELIER</span>
+              <span className="bg-gradient-to-r from-red-600 via-white to-blue-500 bg-clip-text text-transparent px-2">AUTO ATELIER</span>
             </h1>
             <div className="h-px w-24 md:w-48 bg-gradient-to-r from-transparent via-red-600 to-transparent mx-auto"></div>
             <p className="text-blue-50/80 font-sans text-xs md:text-sm lg:text-lg tracking-[0.4em] max-w-3xl mx-auto uppercase drop-shadow-md leading-relaxed font-semibold">
@@ -1006,7 +1005,7 @@ function App() {
       </section>
 
       {/* Services & Pricing Area */}
-      <section className="py-24 px-6 bg-transparent relative">
+      <section id="services" className="py-24 px-6 bg-transparent relative">
         <div className="max-w-6xl mx-auto">
           <div className="mb-16 flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/10 pb-8 relative">
             <div>
@@ -1394,7 +1393,7 @@ function App() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-24 px-6 bg-blue-950 text-white relative overflow-hidden">
+      <section id="gallery" className="py-24 px-6 bg-blue-950 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-400 via-transparent to-transparent pointer-events-none"></div>
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-16">
@@ -1533,7 +1532,7 @@ function App() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 px-6 bg-transparent border-t border-white/10">
+      <section id="faq" className="py-24 px-6 bg-transparent border-t border-white/10">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4 uppercase tracking-tight drop-shadow-md">Frequently Asked Questions</h2>
@@ -1705,8 +1704,36 @@ function App() {
         <div className="max-w-3xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4 uppercase tracking-tight drop-shadow-md">Request an Appointment</h2>
+            <div className="flex justify-center items-center gap-4 mb-8">
+              <div className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${bookingState === 'idle' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'bg-emerald-500 text-white'}`}>
+                  {bookingState !== 'idle' ? <Check className="w-4 h-4" /> : '1'}
+                </div>
+                <span className={`text-[10px] uppercase tracking-widest font-bold ${bookingState === 'idle' ? 'text-white' : 'text-slate-500'}`}>Details</span>
+              </div>
+              <div className="w-12 h-px bg-white/10"></div>
+              <div className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${bookingState === 'confirm' || bookingState === 'submitting' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'bg-slate-800 text-slate-500 border border-white/5'}`}>
+                  2
+                </div>
+                <span className={`text-[10px] uppercase tracking-widest font-bold ${bookingState === 'confirm' || bookingState === 'submitting' ? 'text-white' : 'text-slate-500'}`}>Confirm</span>
+              </div>
+              {bookingState === 'success' && (
+                <>
+                  <div className="w-12 h-px bg-white/10"></div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-emerald-500 text-white">
+                      <Check className="w-4 h-4" />
+                    </div>
+                    <span className="text-[10px] uppercase tracking-widest font-bold text-white">Done</span>
+                  </div>
+                </>
+              )}
+            </div>
             <p className="text-sm text-slate-300 font-display uppercase tracking-widest">
-              Fill out the form below to secure your detailing session.
+              {bookingState === 'idle' ? 'Fill out the form below to secure your detailing session.' : 
+               bookingState === 'confirm' ? 'Please review your appointment details' : 
+               bookingState === 'success' ? 'Your booking has been confirmed' : 'Processing your request...'}
             </p>
           </div>
 
@@ -1804,24 +1831,45 @@ function App() {
               <div className="grid md:grid-cols-2 gap-8 relative z-10">
                 <div className="space-y-2">
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Full Name</label>
-                  <input required name="fullName" type="text" className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors placeholder:text-slate-500" placeholder="Juan Dela Cruz" />
+                  <input 
+                    required 
+                    value={formValues.fullName}
+                    onChange={(e) => setFormValues(prev => ({ ...prev, fullName: e.target.value }))}
+                    type="text" 
+                    className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors placeholder:text-slate-500" 
+                    placeholder="Juan Dela Cruz" 
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Phone Number</label>
-                  <input required name="phone" type="tel" className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors placeholder:text-slate-500" placeholder="0976 442 1242" />
+                  <input 
+                    required 
+                    value={formValues.phone}
+                    onChange={(e) => setFormValues(prev => ({ ...prev, phone: e.target.value }))}
+                    type="tel" 
+                    className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors placeholder:text-slate-500" 
+                    placeholder="0976 442 1242" 
+                  />
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-8 relative z-10">
                 <div className="space-y-2">
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Email Address</label>
-                  <input required name="email" type="email" className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors placeholder:text-slate-500" placeholder="juan@example.com" />
+                  <input 
+                    required 
+                    value={formValues.email}
+                    onChange={(e) => setFormValues(prev => ({ ...prev, email: e.target.value }))}
+                    type="email" 
+                    className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors placeholder:text-slate-500" 
+                    placeholder="juan@example.com" 
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Service required</label>
                   <select 
                     required 
-                    name="service" 
+                    value={formValues.service}
                     onChange={(e) => setFormValues(prev => ({ ...prev, service: e.target.value }))}
                     className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors appearance-none cursor-pointer"
                   >
@@ -1857,7 +1905,7 @@ function App() {
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Vehicle Type</label>
                   <select 
                     required 
-                    name="vehicleType" 
+                    value={formValues.vehicleType}
                     onChange={(e) => setFormValues(prev => ({ ...prev, vehicleType: e.target.value }))}
                     className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors appearance-none cursor-pointer"
                   >
@@ -1910,7 +1958,14 @@ function App() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Exact Location (Pampanga/Tarlac)</label>
-                  <input required name="location" type="text" className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors placeholder:text-slate-500" placeholder={formValues.serviceMode === 'home' ? "Full Home Address" : "City/Province"} />
+                  <input 
+                    required 
+                    value={formValues.location}
+                    onChange={(e) => setFormValues(prev => ({ ...prev, location: e.target.value }))}
+                    type="text" 
+                    className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors placeholder:text-slate-500" 
+                    placeholder={formValues.serviceMode === 'home' ? "Full Home Address" : "City/Province"} 
+                  />
                 </div>
               </div>
 
@@ -1918,12 +1973,24 @@ function App() {
                 <div className="space-y-2">
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Preferred Date</label>
                   <div className="relative">
-                    <input required name="date" type="date" className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors cursor-pointer style-scheme-dark" style={{colorScheme: "dark"}} />
+                    <input 
+                      required 
+                      value={formValues.date}
+                      onChange={(e) => setFormValues(prev => ({ ...prev, date: e.target.value }))}
+                      type="date" 
+                      className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors cursor-pointer style-scheme-dark" 
+                      style={{colorScheme: "dark"}} 
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-display text-slate-400 uppercase tracking-widest font-bold">Preferred Time</label>
-                  <select required name="time" className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors appearance-none cursor-pointer">
+                  <select 
+                    required 
+                    value={formValues.time}
+                    onChange={(e) => setFormValues(prev => ({ ...prev, time: e.target.value }))}
+                    className="w-full bg-slate-800/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors appearance-none cursor-pointer"
+                  >
                     <option value="" className="text-slate-500">Select an arrival window...</option>
                     <option value="morning" className="bg-slate-900 text-white">Morning (8AM - 12PM)</option>
                     <option value="afternoon" className="bg-slate-900 text-white">Afternoon (1PM - 5PM)</option>
@@ -1956,7 +2023,7 @@ function App() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-950 border-t border-white/5 pt-20 pb-10 px-6 relative overflow-hidden">
+      <footer id="contact" className="bg-slate-950 border-t border-white/5 pt-20 pb-10 px-6 relative overflow-hidden">
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-red-600/50 to-transparent"></div>
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20 relative z-10">
           {/* Column 1: Branding & Description */}

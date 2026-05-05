@@ -247,17 +247,24 @@ const VideoModal = ({ url, onClose }: { url: string, onClose: () => void }) => {
 
 const Logo = ({ className = "" }: { className?: string }) => {
   const [error, setError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {!error ? (
         <img 
-          src="/logo.png" 
+          src={`/logo.png?v=${retryCount}`} 
           alt="AAA Logo" 
           className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:scale-110 transition-transform duration-700 ease-out"
           loading="eager"
           referrerPolicy="no-referrer"
-          onError={() => setError(true)}
+          onError={() => {
+            if (retryCount < 2) {
+              setTimeout(() => setRetryCount(prev => prev + 1), 1000);
+            } else {
+              setError(true);
+            }
+          }}
         />
       ) : (
         <div className="flex flex-col items-center justify-center text-center p-2 rounded-xl bg-gradient-to-br from-red-600/20 to-blue-600/20 border border-white/10 backdrop-blur-md w-full h-full">
@@ -321,11 +328,23 @@ function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(err => {
-        console.log("Autoplay blocked or video failed:", err);
-      });
-    }
+    const playVideo = async () => {
+      if (videoRef.current) {
+        try {
+          await videoRef.current.play();
+        } catch (err) {
+          console.log("Autoplay blocked or video failed, retrying in 2 seconds:", err);
+          setTimeout(async () => {
+             try {
+               await videoRef.current?.play();
+             } catch (e) {
+               console.log("Final attempt to play video failed:", e);
+             }
+          }, 2000);
+        }
+      }
+    };
+    playVideo();
   }, []);
 
   const scrollToSection = (id: string) => {

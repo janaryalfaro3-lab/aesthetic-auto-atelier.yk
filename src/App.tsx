@@ -246,56 +246,26 @@ const VideoModal = ({ url, onClose }: { url: string, onClose: () => void }) => {
 };
 
 const BannerImage = () => {
-  const [retry, setRetry] = useState(0);
-  const [error, setError] = useState(false);
-
-  if (error) return null;
-
   return (
     <img 
-      src={`/banner.png?v=${retry}`} 
+      src="/banner.png" 
       alt="Aesthetic Auto Atelier Banner" 
       className="relative w-full h-auto max-h-[220px] md:max-h-[350px] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5"
       referrerPolicy="no-referrer"
-      onError={() => {
-        if (retry < 3) {
-          setTimeout(() => setRetry(prev => prev + 1), 1000);
-        } else {
-          setError(true);
-        }
-      }}
     />
   );
 };
 
 const Logo = ({ className = "" }: { className?: string }) => {
-  const [error, setError] = useState(false);
-  const [retry, setRetry] = useState(0);
-  
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
-      {!error ? (
-        <img 
-          src={`/logo.png?v=${retry}`} 
-          alt="AAA Logo" 
-          className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:scale-110 transition-transform duration-700 ease-out"
-          loading="eager"
-          referrerPolicy="no-referrer"
-          onError={() => {
-            if (retry < 3) {
-              console.log(`Logo failed to load, retrying (${retry + 1}/3)...`);
-              setTimeout(() => setRetry(prev => prev + 1), 1000);
-            } else {
-              setError(true);
-            }
-          }}
-        />
-      ) : (
-        <div className="flex flex-col items-center justify-center text-center p-2 rounded-xl bg-gradient-to-br from-red-600/20 to-blue-600/20 border border-white/10 backdrop-blur-md w-full h-full">
-           <Car className="text-red-500 w-1/2 h-1/2 drop-shadow-lg" />
-           <span className="text-[10px] font-display font-black text-white leading-none mt-1 tracking-tighter uppercase">AAA</span>
-        </div>
-      )}
+      <img 
+        src="/logo.png" 
+        alt="AAA Logo" 
+        className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:scale-110 transition-transform duration-700 ease-out"
+        loading="eager"
+        referrerPolicy="no-referrer"
+      />
     </div>
   );
 };

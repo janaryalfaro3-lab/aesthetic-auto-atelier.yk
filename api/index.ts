@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -8,9 +9,49 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
-// API Routes (Synchronous registration)
+// Serve static files from /dist at the very beginning
+const rootDir = process.cwd();
+const distPath = path.resolve(rootDir, "dist");
+
+console.log(`[Server] Static Root: ${distPath}`);
+
+// API routes next
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
+});
+
+app.get("/api/debug-paths", (req, res) => {
+  const files = fs.existsSync(distPath) ? fs.readdirSync(distPath) : ["dist-not-found"];
+  res.json({
+    processCwd: rootDir,
+    __dirname,
+    distPath,
+    distFiles: files,
+    publicDir: path.resolve(rootDir, "public"),
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      VERCEL: process.env.VERCEL
+    }
+  });
+});
+
+// Explicit routes for problematic assets (as a backup)
+app.get("/logo.png", (req, res, next) => {
+  const logoPath = path.join(distPath, "logo.png");
+  if (fs.existsSync(logoPath)) {
+    return res.sendFile(logoPath);
+  }
+  next();
+});
+
+app.get("/videocar.mp4", (req, res, next) => {
+  const videoPath = path.join(distPath, "videocar.mp4");
+  if (fs.existsSync(videoPath)) {
+    res.setHeader("Content-Type", "video/mp4");
+    res.setHeader("Accept-Ranges", "bytes");
+    return res.sendFile(videoPath);
+  }
+  next();
 });
 
 async function setupAndStart() {
@@ -26,16 +67,14 @@ async function setupAndStart() {
     // Production (AI Studio Managed) or Vercel Proxy
     // Note: On Vercel, static files are served via the edge network, not this function.
     if (!process.env.VERCEL) {
-      // Use __dirname for more reliable path resolution in different environments
-      const distPath = path.resolve(__dirname, "..", "dist");
-      
       // Serve static files from /dist
       app.use(express.static(distPath, {
         maxAge: '1d',
         etag: true,
-        setHeaders: (res, path) => {
-          if (path.endsWith('.mp4')) {
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith('.mp4')) {
             res.setHeader('Content-Type', 'video/mp4');
+            res.setHeader('Accept-Ranges', 'bytes');
           }
         }
       }));
@@ -45,10 +84,12 @@ async function setupAndStart() {
         // If the request looks like a file (has an extension), but wasn't found by express.static, 
         // don't serve index.html, just 404
         if (req.path.includes('.') && !req.path.endsWith('.html')) {
+          console.log(`[Server] 404 for asset: ${req.path}`);
           return res.status(404).end();
         }
         res.sendFile(path.resolve(distPath, "index.html"), (err) => {
           if (err) {
+            console.error(`[Server] Failed to serve index.html: ${err.message}`);
             res.status(404).send("Frontend assets not found.");
           }
         });

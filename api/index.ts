@@ -14,6 +14,15 @@ const rootDir = process.cwd();
 const distPath = path.resolve(rootDir, "dist");
 
 console.log(`[Server] Static Root: ${distPath}`);
+console.log(`[Server] Current Dir: ${rootDir}`);
+
+// Request logging middleware
+app.use((req, res, next) => {
+  if (!req.url.startsWith('/api') && !req.url.includes('assets')) {
+    console.log(`[Request] ${req.method} ${req.url}`);
+  }
+  next();
+});
 
 // API routes next
 app.get("/api/health", (req, res) => {
@@ -35,23 +44,23 @@ app.get("/api/debug-paths", (req, res) => {
   });
 });
 
-// Explicit routes for problematic assets (as a backup)
-app.get("/logo.png", (req, res, next) => {
-  const logoPath = path.join(distPath, "logo.png");
+// Explicit routes for problematic assets (as a backup) with absolute resolution
+app.get("/logo.png", (req, res) => {
+  const logoPath = path.resolve(distPath, "logo.png");
   if (fs.existsSync(logoPath)) {
     return res.sendFile(logoPath);
   }
-  next();
+  res.status(404).send("Logo not found");
 });
 
-app.get("/videocar.mp4", (req, res, next) => {
-  const videoPath = path.join(distPath, "videocar.mp4");
+app.get("/videocar.mp4", (req, res) => {
+  const videoPath = path.resolve(distPath, "videocar.mp4");
   if (fs.existsSync(videoPath)) {
     res.setHeader("Content-Type", "video/mp4");
     res.setHeader("Accept-Ranges", "bytes");
     return res.sendFile(videoPath);
   }
-  next();
+  res.status(404).send("Video not found");
 });
 
 async function setupAndStart() {
@@ -67,7 +76,7 @@ async function setupAndStart() {
     // Production (AI Studio Managed) or Vercel Proxy
     // Note: On Vercel, static files are served via the edge network, not this function.
     if (!process.env.VERCEL) {
-      // Serve static files from /dist
+      // Serve static files from /dist with high priority
       app.use(express.static(distPath, {
         maxAge: '1d',
         etag: true,

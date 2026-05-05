@@ -9,9 +9,15 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
-const rootDir = process.cwd();
+// Resolve paths correctly relative to this file's location in /api
+const rootDir = path.resolve(__dirname, "..");
 const distPath = path.resolve(rootDir, "dist");
 const publicPath = path.resolve(rootDir, "public");
+
+console.log(`[Server] Environment: ${process.env.NODE_ENV}`);
+console.log(`[Server] Root Dir: ${rootDir}`);
+console.log(`[Server] Dist Path: ${distPath}`);
+console.log(`[Server] Public Path: ${publicPath}`);
 
 // 1. Logging middleware
 app.use((req, res, next) => {
@@ -21,13 +27,46 @@ app.use((req, res, next) => {
   next();
 });
 
+// Helper for explicit file serving with existence checks
+const serveFileResiliently = (res: express.Response, fileName: string) => {
+  const possiblePaths = [
+    path.join(distPath, fileName),
+    path.join(publicPath, fileName),
+    path.join(rootDir, fileName)
+  ];
+
+  for (const filePath of possiblePaths) {
+    if (fs.existsSync(filePath)) {
+      console.log(`[Server] Serving ${fileName} from ${filePath}`);
+      if (fileName.endsWith('.mp4')) {
+        res.setHeader('Content-Type', 'video/mp4');
+        res.setHeader('Accept-Ranges', 'bytes');
+      }
+      return res.sendFile(filePath);
+    }
+  }
+
+  console.error(`[Server] ERROR: ${fileName} not found in any expected location.`);
+  res.status(404).send(`Asset ${fileName} not found`);
+};
+
+// Explicit routes for problematic assets as high-priority fallbacks
+app.get("/logo.png", (req, res) => serveFileResiliently(res, "logo.png"));
+app.get("/videocar.mp4", (req, res) => serveFileResiliently(res, "videocar.mp4"));
+app.get("/banner.png", (req, res) => serveFileResiliently(res, "banner.png"));
+
 // Debug route to verify file existence
 app.get("/api/debug-files", (req, res) => {
-  const files = fs.existsSync(distPath) ? fs.readdirSync(distPath) : ["dist-not-found"];
+  const distFiles = fs.existsSync(distPath) ? fs.readdirSync(distPath) : ["dist-not-found"];
+  const publicFiles = fs.existsSync(publicPath) ? fs.readdirSync(publicPath) : ["public-not-found"];
   res.json({
+    env: process.env.NODE_ENV,
     distPath,
-    files,
-    cwd: process.cwd()
+    publicPath,
+    distFiles,
+    publicFiles,
+    cwd: process.cwd(),
+    __dirname
   });
 });
 

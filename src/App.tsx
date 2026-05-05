@@ -245,19 +245,50 @@ const VideoModal = ({ url, onClose }: { url: string, onClose: () => void }) => {
   );
 };
 
+const BannerImage = () => {
+  const [retry, setRetry] = useState(0);
+  const [error, setError] = useState(false);
+
+  if (error) return null;
+
+  return (
+    <img 
+      src={`/banner.png?v=${retry}`} 
+      alt="Aesthetic Auto Atelier Banner" 
+      className="relative w-full h-auto max-h-[220px] md:max-h-[350px] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5"
+      referrerPolicy="no-referrer"
+      onError={() => {
+        if (retry < 3) {
+          setTimeout(() => setRetry(prev => prev + 1), 1000);
+        } else {
+          setError(true);
+        }
+      }}
+    />
+  );
+};
+
 const Logo = ({ className = "" }: { className?: string }) => {
   const [error, setError] = useState(false);
+  const [retry, setRetry] = useState(0);
   
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {!error ? (
         <img 
-          src="/logo.png" 
+          src={`/logo.png?v=${retry}`} 
           alt="AAA Logo" 
           className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:scale-110 transition-transform duration-700 ease-out"
           loading="eager"
           referrerPolicy="no-referrer"
-          onError={() => setError(true)}
+          onError={() => {
+            if (retry < 3) {
+              console.log(`Logo failed to load, retrying (${retry + 1}/3)...`);
+              setTimeout(() => setRetry(prev => prev + 1), 1000);
+            } else {
+              setError(true);
+            }
+          }}
         />
       ) : (
         <div className="flex flex-col items-center justify-center text-center p-2 rounded-xl bg-gradient-to-br from-red-600/20 to-blue-600/20 border border-white/10 backdrop-blur-md w-full h-full">
@@ -425,11 +456,23 @@ function App() {
         ...prev,
         [serviceName]: { url: videoUrl, isGenerating: false }
       }));
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("Video Generation Error:", error);
+      let errorMessage = 'Generation failed. Try again.';
+      
+      if (error?.message?.includes('API Key not found')) {
+        errorMessage = 'Gemini API Key missing. Please set GEMINI_API_KEY in your environment.';
+      } else if (error?.status === 403 || error?.message?.includes('PERMISSION_DENIED')) {
+        errorMessage = 'API Key invalid or lacks permission for Video Generation.';
+      } else if (error?.status === 429) {
+        errorMessage = 'Rate limit exceeded. Please try again in 1 minute.';
+      } else if (error?.message?.includes('Quota exceeded')) {
+        errorMessage = 'Project quota exceeded. Please try again later.';
+      }
+      
       setServiceVideos(prev => ({
         ...prev,
-        [serviceName]: { url: '', isGenerating: false, error: 'Generation failed. Try again.' }
+        [serviceName]: { url: '', isGenerating: false, error: errorMessage }
       }));
     }
   };
@@ -679,6 +722,11 @@ function App() {
           loop 
           playsInline
           className="w-full h-full object-cover opacity-40 pointer-events-none"
+          onError={(e) => {
+            console.error("Background video failed to load:", e);
+            // The fallback image below will be visible since video is opacity-40 and on top of it, 
+            // but we could also hide the video element if it fails.
+          }}
         >
           <source src="/videocar.mp4" type="video/mp4" />
         </video>
@@ -789,15 +837,7 @@ function App() {
               className="relative w-full max-w-4xl group mx-auto px-4"
             >
               <div className="absolute -inset-4 bg-gradient-to-r from-red-600 via-blue-600 to-red-600 rounded-3xl blur-3xl opacity-10 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
-              <img 
-                src="/banner.png" 
-                alt="Aesthetic Auto Atelier Banner" 
-                className="relative w-full h-auto max-h-[220px] md:max-h-[350px] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
+              <BannerImage />
             </motion.div>
           </motion.div>
           

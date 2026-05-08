@@ -9,13 +9,26 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
-// Resolve paths relative to the current working directory (project root)
+// Resolve paths relative to the project root
 const rootDir = process.cwd();
-const distPath = path.join(rootDir, "dist");
+// In some environments (like Vercel), dist might be closer to the script than process.cwd()
+const possibleDistPaths = [
+  path.join(rootDir, "dist"),
+  path.join(__dirname, "..", "dist"),
+  path.join(__dirname, "dist")
+];
+
+let distPath = possibleDistPaths[0];
+for (const p of possibleDistPaths) {
+  if (fs.existsSync(p) && fs.existsSync(path.join(p, "index.html"))) {
+    distPath = p;
+    break;
+  }
+}
+
 const publicPath = path.join(rootDir, "public");
 
-// Vercel specific: Ensure we check the current directory if dist is moved
-console.log(`[Server] Searching assets in: ${distPath}, ${publicPath}`);
+console.log(`[Server] Resolved Dist Path: ${distPath}`);
 
 // 1. Static files first - this should handle logo.png, banner.png, videocar.mp4 automatically
 // if they exist in /dist or /public

@@ -671,9 +671,13 @@ function App() {
           playsInline
           className="w-full h-full object-cover opacity-40 pointer-events-none"
           onError={(e) => {
-            console.error("Background video failed to load:", e);
-            // The fallback image below will be visible since video is opacity-40 and on top of it, 
-            // but we could also hide the video element if it fails.
+            console.warn("Local video failed, using CDN fallback:", e);
+            const target = e.currentTarget;
+            const fallbackUrl = "https://cdn.pixabay.com/video/2021/08/17/85375-589578270_tiny.mp4"; // Small sample car related video
+            if (target.src !== fallbackUrl) {
+              target.src = fallbackUrl;
+              target.play().catch(console.error);
+            }
           }}
         >
           <source src="/videocar.mp4" type="video/mp4" />

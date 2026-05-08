@@ -286,6 +286,11 @@ function App() {
     serviceMode: 'shop' as 'shop' | 'home'
   });
   const [bookingData, setBookingData] = useState<typeof formValues | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedVehicleType, setSelectedVehicleType] = useState('All');
+
+  const categories = ['All', 'Ceramic', 'Detailing', 'Carwash', 'Specialty', 'Maintenance'];
+  const vehicleTypes = ['All', 'Sedan', 'SUV', 'Van/Pick-up', 'Motorcycle'];
 
   const getPrice = (serviceName: string, vehicleType: string, serviceMode?: string) => {
     if (!serviceName || !vehicleType) return null;
@@ -711,7 +716,7 @@ function App() {
           </motion.div>
           <div className="flex flex-col">
             <div className="text-sm md:text-base tracking-[0.2em] uppercase font-display font-bold text-white group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              Aesthetic <span className="text-red-600">Auto</span>
+              Aesthetic <span className="text-red-600">Auto</span> <span className="text-blue-500">Atelier</span>
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ring-2 ring-emerald-500/20"></span>
@@ -794,9 +799,12 @@ function App() {
           </motion.div>
           
           <div className="space-y-6 md:space-y-8 w-full max-w-7xl px-8">
-            <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-[0.9] tracking-tighter drop-shadow-[0_5px_30px_rgba(0,0,0,0.8)] text-white italic py-4">
-              AESTHETIC <br className="hidden sm:block"/> 
-              <span className="bg-gradient-to-r from-red-600 via-white to-blue-500 bg-clip-text text-transparent px-2">AUTO ATELIER</span>
+            <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-[0.95] tracking-tight drop-shadow-[0_10px_50px_rgba(0,0,0,1)] italic py-6 flex flex-col items-center">
+              <span className="text-white block">AESTHETIC</span>
+              <span className="flex flex-wrap justify-center gap-x-4 md:gap-x-8">
+                <span className="text-red-600 drop-shadow-[0_0_20px_rgba(220,38,38,0.5)]">AUTO</span> 
+                <span className="text-blue-500 drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]">ATELIER</span>
+              </span>
             </h1>
             <div className="h-px w-24 md:w-48 bg-gradient-to-r from-transparent via-red-600 to-transparent mx-auto"></div>
             <p className="text-blue-50/80 font-sans text-xs md:text-sm lg:text-lg tracking-[0.4em] max-w-3xl mx-auto uppercase drop-shadow-md leading-relaxed font-semibold">
@@ -1012,9 +1020,44 @@ function App() {
       {/* Services & Pricing Area */}
       <section id="services" className="py-24 px-6 bg-transparent relative">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-16 flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/10 pb-8 relative">
-            <div>
+          <div className="mb-16 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10 border-b border-white/10 pb-12 relative">
+            <div className="space-y-6 w-full lg:w-auto">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-white uppercase drop-shadow-md">Services & Pricing</h2>
+              
+              {/* Category Filter */}
+              <div className="flex flex-wrap gap-2">
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-4 py-2 rounded-full text-[10px] font-display font-bold uppercase tracking-widest transition-all ${
+                      selectedCategory === cat 
+                        ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.4)]' 
+                        : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white border border-white/10'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* Vehicle Type Filter */}
+              <div className="flex flex-wrap gap-2">
+                <span className="text-[10px] text-slate-500 font-display font-bold uppercase tracking-widest self-center mr-2">Filter by vehicle:</span>
+                {vehicleTypes.map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setSelectedVehicleType(type)}
+                    className={`px-4 py-1.5 rounded-full text-[10px] font-display font-bold uppercase tracking-widest transition-all ${
+                      selectedVehicleType === type 
+                        ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]' 
+                        : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white border border-white/10'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
             </div>
             
             {/* Promo Badge from Flyer */}
@@ -1026,11 +1069,17 @@ function App() {
           </div>
 
           {/* Ceramic Coating Section */}
-          <div className="mb-16">
-            <h3 className="font-display text-3xl font-bold text-white uppercase tracking-tight mb-8 drop-shadow-sm border-l-4 border-blue-400 pl-4">Ceramic Coating</h3>
-            <div className="grid lg:grid-cols-3 gap-8">
-              {ceramicServices.map((service, idx) => {
-                const Icon = service.icon;
+          {(selectedCategory === 'All' || selectedCategory === 'Ceramic') && (
+            <div className="mb-16">
+              <h3 className="font-display text-3xl font-bold text-white uppercase tracking-tight mb-8 drop-shadow-sm border-l-4 border-blue-400 pl-4">Ceramic Coating</h3>
+              <div className="grid lg:grid-cols-3 gap-8">
+                {ceramicServices
+                  .filter(s => {
+                    if (selectedVehicleType === 'All') return true;
+                    return s.prices.some(p => p.type.includes(selectedVehicleType) || p.type === 'Any Type');
+                  })
+                  .map((service, idx) => {
+                  const Icon = service.icon;
                 return (
                   <div key={idx} className="group cursor-default bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl hover:border-blue-500 hover:shadow-2xl hover:scale-105 hover:bg-slate-900/80 transition-all duration-500 flex flex-col relative overflow-hidden p-8 rounded-2xl col-span-3 lg:col-span-1">
                     {/* Background glow */}
@@ -1089,13 +1138,20 @@ function App() {
               })}
             </div>
           </div>
+          )}
 
           {/* Detailing Services Section */}
-          <div className="mb-16">
-            <h3 className="font-display text-3xl font-bold text-white uppercase tracking-tight mb-8 drop-shadow-sm border-l-4 border-red-600 pl-4">Premium Detailing</h3>
-            <div className="grid lg:grid-cols-3 gap-8">
-              {detailingServices.map((service, idx) => {
-                const Icon = service.icon;
+          {(selectedCategory === 'All' || selectedCategory === 'Detailing') && (
+            <div className="mb-16">
+              <h3 className="font-display text-3xl font-bold text-white uppercase tracking-tight mb-8 drop-shadow-sm border-l-4 border-red-600 pl-4">Premium Detailing</h3>
+              <div className="grid lg:grid-cols-3 gap-8">
+                {detailingServices
+                  .filter(s => {
+                    if (selectedVehicleType === 'All') return true;
+                    return s.prices.some(p => p.type.includes(selectedVehicleType) || p.type === 'Any Type');
+                  })
+                  .map((service, idx) => {
+                  const Icon = service.icon;
                 return (
                   <div key={idx} className="group cursor-default bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl hover:border-red-600 hover:shadow-2xl hover:scale-105 hover:bg-slate-900/80 transition-all duration-500 flex flex-col relative overflow-hidden p-8 rounded-2xl">
                     {/* Background glow */}
@@ -1154,13 +1210,20 @@ function App() {
               })}
             </div>
           </div>
+          )}
 
           {/* Carwash Packages Section */}
-          <div className="mb-16 pt-10 border-t border-white/10">
-            <h3 className="font-display text-3xl font-bold text-white uppercase tracking-tight mb-8 border-l-4 border-blue-500 pl-4 drop-shadow-sm">Signature Carwash Packages</h3>
-            <div className="grid lg:grid-cols-3 gap-8">
-              {mainServices.map((service, idx) => {
-              const Icon = service.icon;
+          {(selectedCategory === 'All' || selectedCategory === 'Carwash') && (
+            <div className="mb-16 pt-10 border-t border-white/10">
+              <h3 className="font-display text-3xl font-bold text-white uppercase tracking-tight mb-8 border-l-4 border-blue-500 pl-4 drop-shadow-sm">Signature Carwash Packages</h3>
+              <div className="grid lg:grid-cols-3 gap-8">
+                {mainServices
+                  .filter(s => {
+                    if (selectedVehicleType === 'All') return true;
+                    return s.prices.some(p => p.type.includes(selectedVehicleType) || p.type === 'Any Type');
+                  })
+                  .map((service, idx) => {
+                const Icon = service.icon;
               return (
                 <div key={idx} className="group cursor-default bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl hover:border-blue-500 hover:shadow-2xl hover:scale-105 hover:bg-slate-900/80 transition-all duration-500 flex flex-col relative overflow-hidden p-8 rounded-2xl">
                   {/* Background glow */}
@@ -1227,13 +1290,30 @@ function App() {
               );
             })}
           </div>
+        </div>
+        )}
 
-          {/* Specialty Services Section */}
-          <div className="mb-10 pt-10 border-t border-white/10">
-            <h3 className="font-display text-3xl font-bold text-white uppercase tracking-tight mb-8 border-l-4 border-slate-500 pl-4 drop-shadow-sm">Specialty Cleanups</h3>
-            <div className="grid md:grid-cols-2 gap-8">
-              {specialtyServices.map((service, idx) => {
-                const Icon = service.icon;
+        {/* Specialty Services Section */}
+          {(selectedCategory === 'All' || selectedCategory === 'Specialty') && (
+            <div className="mb-10 pt-10 border-t border-white/10">
+              <h3 className="font-display text-3xl font-bold text-white uppercase tracking-tight mb-8 border-l-4 border-slate-500 pl-4 drop-shadow-sm">Specialty Cleanups</h3>
+              <div className="grid md:grid-cols-2 gap-8">
+                {specialtyServices
+                  .filter(s => {
+                    if (selectedVehicleType === 'All') return true;
+                    // Specialty services like Home Service/On-Site are for all. 
+                    // Motorcycle service is for any type too.
+                    // Advanced cleaning is for all.
+                    if (s.prices.some(p => 
+                      p.type === 'Any Type' || 
+                      p.type === 'All Vehicles' || 
+                      p.type === 'Service Fee' ||
+                      p.type.includes('All')
+                    )) return true;
+                    return s.prices.some(p => p.type.includes(selectedVehicleType));
+                  })
+                  .map((service, idx) => {
+                  const Icon = service.icon;
                 return (
                   <motion.div 
                     key={idx}
@@ -1308,13 +1388,22 @@ function App() {
               })}
             </div>
           </div>
+          )}
 
           {/* Additional Services Section */}
-          <div className="mb-10 pt-10 border-t border-white/10">
-            <h3 className="font-display text-3xl font-bold text-white uppercase tracking-tight mb-8 border-l-4 border-red-500 pl-4 drop-shadow-sm">Maintenance, Upgrades & Accessories</h3>
-            <div className="grid lg:grid-cols-3 gap-8">
-              {additionalServices.map((service, idx) => {
-                const Icon = service.icon;
+          {(selectedCategory === 'All' || selectedCategory === 'Maintenance') && (
+            <div className="mb-10 pt-10 border-t border-white/10">
+              <h3 className="font-display text-3xl font-bold text-white uppercase tracking-tight mb-8 border-l-4 border-red-500 pl-4 drop-shadow-sm">Maintenance, Upgrades & Accessories</h3>
+              <div className="grid lg:grid-cols-3 gap-8">
+                {additionalServices
+                  .filter(_ => {
+                    // Maintenance services are generally applicable to all vehicles
+                    if (selectedVehicleType === 'All') return true;
+                    if (selectedVehicleType === 'Motorcycle') return false; // Most accessories listed are for cars
+                    return true;
+                  })
+                  .map((service, idx) => {
+                  const Icon = service.icon;
                 return (
                   <div key={idx} className="bg-slate-900/60 backdrop-blur-xl border border-white/10 p-8 rounded-2xl flex flex-col justify-between shadow-xl relative overflow-hidden group hover:border-red-500 hover:scale-[1.02] hover:bg-slate-900/80 transition-all duration-300">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600 rounded-full filter blur-[60px] opacity-10 group-hover:opacity-20 transition-opacity"></div>
@@ -1378,6 +1467,7 @@ function App() {
               })}
             </div>
           </div>
+          )}
           
           <div className="mt-20 p-8 md:p-12 bg-slate-900/40 backdrop-blur-md border border-white/10 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden shadow-sm">
             <div className="absolute top-0 left-0 w-2 bg-red-600 h-full"></div>
@@ -1392,7 +1482,6 @@ function App() {
               Book an Appointment
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>
-          </div>
           </div>
         </div>
       </section>
@@ -2036,10 +2125,10 @@ function App() {
             <div className="flex items-center gap-4">
               <Logo className="w-16 h-16" />
               <div className="flex flex-col">
-                <div className="font-display text-lg font-bold tracking-widest text-white leading-none">
+                <div className="font-display text-lg font-bold tracking-widest text-white leading-none mb-1">
                   AESTHETIC <span className="text-red-600">AUTO</span>
                 </div>
-                <div className="text-[10px] uppercase tracking-[0.4em] text-slate-500 font-medium">Atelier</div>
+                <div className="text-[10px] uppercase tracking-[0.4em] text-blue-500 font-bold">Atelier</div>
               </div>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed font-light">
